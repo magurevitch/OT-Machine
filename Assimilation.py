@@ -1,16 +1,18 @@
 from FSA import FSA
 
 class Assimilation:
-    def __init__(self,lists,tier=False):
+    def __init__(self,lists,opaques=False):
         self.lists = lists
-        self.tier = tier
+        self.opaques = opaques
         
     def prettyprint(self):
         print "The harmonic groups are:"
         for group in self.lists:
                 print '/'+"/,/".join(group)+'/'
-        if self.tier:
-            print "The non-transparent elements of the harmony tier are: /"+"/,/".join(self.tier)+'/'
+        if self.opaques == []:
+            print "This harmony group only takes place in tiers"
+        if self.opaques:
+            print "The non-transparent elements of the harmony opaques are: /"+"/,/".join(self.opaques)+'/'
             
     def getHarmonics(self):
         return set([item for list in self.lists for item in list])
@@ -41,7 +43,7 @@ class Assimilation:
             fsa.addEdge(state,state,".",[])
             fsa.addEdge(state,state,"_",[])
             for neut in self.getNeutrals(language):
-                if self.tier:
+                if self.opaques != False:
                     fsa.addEdge(state,state,neut,[])
                 else:
                     fsa.addEdge(state,"Neutral",neut,[])
