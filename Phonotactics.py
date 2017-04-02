@@ -75,7 +75,6 @@ class Phonotactics:
         
         if len(fsa.states) == 1:
             fsa.Replace("I",self.usphon)
-            
         for state in set(fsa.states):
             if "-" not in state:
                 if "." in state:

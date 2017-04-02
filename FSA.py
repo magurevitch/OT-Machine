@@ -216,7 +216,10 @@ class FSA:
             for state in epsilon_closures[closure]:
                 if state in epsilon_closures:
                     epsilon_closures[closure] += [s for s in epsilon_closures[state] if s not in epsilon_closures[closure]]
-        start = tuple(set([self.start] + epsilon_closures[self.start]))
+        startlist = [self.start]
+        if self.start in epsilon_closures:
+            startlist += epsilon_closures[self.start]
+        start = tuple(set(startlist))
         fsa = FSA(start,[],[],[])
         stack = [start]
         empty = []
@@ -265,10 +268,9 @@ class FSA:
             open = max(fsa.states) + 1
             if len (string) < 1:
                 fsa.Quotient([end,start])
-                #fsa.edges += [FSAEdge(start,end,"_",[])]
             elif string[0] in '([{':
                 if string[0] == '(':
-                    fsa.Quotient([start,open])
+                    fsa.edges += [FSAEdge(start,open,'_',[''])]
                 elif string[0] == '{':
                     fsa.edges += [FSAEdge(start,open,'_',['pen'])]
                 branches = []
@@ -326,3 +328,9 @@ class FSA:
         ThompsonRecurse(0,'f',regex)
         fsa.states += ['f']
         return fsa
+    
+    def __hash__(self):
+        return hash((self.start, set(self.ends),set(self.states),set(self.edges)))
+
+    def __eq__(self, other):
+        return (self.start, set(self.ends),set(self.states),set(self.edges)) == (other.start, set(other.ends),set(other.states),set(other.edges))

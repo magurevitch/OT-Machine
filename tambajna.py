@@ -7,7 +7,7 @@ from Language import Language
 
 cats = {'C':['p','t','k','q','b','d','g','T','K','n','m','N','W','h','f','s','x','Q','r'],'A':['w','y',"j"],'V':['a','e','i','u'],'F':['p','t','k','n','m','N','f','s','x','r'],'P':['p','t','k','q','b','d','g','T','K'],'S':['f','s','x','Q','r']}
 ins = {'P':("e","a"),'V':("h","b"),'S':("e","b")}
-chgs = {"ai":["aj"],"au":["aw"],"ia":["ja"],"ie":["iy"],"iu":["ju"],"ua":["wa"],"ue":["uy"],"ui":["wi"],"mp":["b"],"nt":["d"],"Nk":["g"],"ku":['q'],"xu":['Q'],"Nu":['W'],'b':['mb'],'d':['nd'],'g':['Ng'],'W':['NW']}
+chgs = {"ai":["aj"],"au":["aw"],"ia":["ja"],"ie":["iy"],"iu":["ju"],"ua":["wa"],"ue":["uy"],"ui":["wi"],"ku":['q'],"xu":['Q'],"Nu":['W'],'b':['mb'],'d':['nd'],'g':['Ng'],'W':['NW']}
 undel = "q,T,K"
 order = ["harm",'pen',"bs",'del','ins','chg']
 geminate = "A+F"

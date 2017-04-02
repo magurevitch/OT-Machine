@@ -26,8 +26,10 @@ class FST(FSA):
                 for selfEdge in selfEdges:
                     for fsaEdge in fsaEdges:
                         if selfEdge.original == fsaEdge.label:
-                            stack += [(selfEdge.to,fsaEdge.to)]
-                            edges += [FSAEdge((x,y),(selfEdge.to,fsaEdge.to),selfEdge.changed,selfEdge.weight+fsaEdge.weight)]
+                            label = selfEdge.changed
+                            toState = selfEdge.to, fsaEdge.to
+                            stack += [toState]
+                            edges += [FSAEdge((x,y),toState,label,selfEdge.weight+fsaEdge.weight)]
         return FSA(start,ends,states,edges).Trim()
     
     def addString(self,frm,to,original,changed,wgt):

@@ -1,4 +1,6 @@
 # OT-Machine
+Optiality Theory (OT) is a theory about how a deep structure becomes a surface structure, by introducing the idea of constraints. This program implements it in phonology.
+
 ## Main Files
 
 There are two main files  
@@ -31,7 +33,7 @@ Both main files allow you to either input an underlying form, or a name of a con
 * Phonotactics.py contains information about the phonotactic rules of how syllables look.
   * PhonotacticFSA is a method to make an FSA that goes through the entire phonotactics
 * Assimilation.py contains the information about assimilation, vowel harmony, and related concepts
-  * lists is a field that contains each harmonic group. If a sound is in multiple groups, then write it in any of them. If a sound is opaque to harmony, then put it in every list, and if it is transparent to harmony, then don't put it in any lists
+  * lists is a field that contains each harmonic group. If a sound is in multiple groups, then write it in all of them. If a sound is opaque to long distance harmony, then put it in the opaques list, and if it is transparent to harmony, then don't put it in any lists. If the harmony is short distance, put in opaques as "False"
   * tier is a field that is null if the harmony doesn't occur on a separate tier, and lists all symbols in that tier if it is
   * harmony FSA creates an FSA that accepts a given harmony system
  * PriorityQueue.py makes a priority queue, using a heap, that Dijktra uses

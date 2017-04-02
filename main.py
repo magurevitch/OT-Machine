@@ -11,31 +11,31 @@ print "if you want my conlang-in-progress, write 'default'"
 print "if you want your own lang, please use one syllable per phoneme, no _ or ."
 text = raw_input("and your categories as symbol : phonemes in that category, one at a time ")
 if text == "default":
-    cats = {'C':['p','t','k','q','b','d','g','T','K','n','m','N','W','h','f','s','x','Q','r'],'A':['w','y',"j"],'V':['a','e','i','u'],'F':['p','t','k','n','m','N','f','s','x','r'],'P':['p','t','k','q','b','d','g','T','K'],'S':['f','s','x','Q','r']}
-    ins = {'P':("e","a"),'V':("h","b"),'S':("e","b")}
-    chgs = {"ai":["aj"],"au":["aw"],"ia":["ja"],"ie":["iy"],"iu":["ju"],"ua":["wa"],"ue":["uy"],"ui":["wi"],"mp":["b"],"nt":["d"],"Nk":["g"],"ku":['q'],"xu":['Q'],"Nu":['W'],'b':['mb'],'d':['nd'],'g':['Ng'],'W':['NW']}
+    cats = {'C':['p', 't', 'k', 'q', 'b', 'd', 'g', 'T', 'K', 'n', 'm', 'N', 'W', 'h', 'f', 's', 'x', 'Q', 'r'], 'A':['w', 'y', "j"], 'V':['a', 'e', 'i', 'u'], 'F':['p', 't', 'k', 'n', 'm', 'N', 'f', 's', 'x', 'r'], 'P':['p', 't', 'k', 'q', 'b', 'd', 'g', 'T', 'K'], 'S':['f', 's', 'x', 'Q', 'r']}
+    ins = {'P':("e", "a"), 'V':("h", "b"), 'S':("e", "b")}
+    chgs = {"ai":["aj"], "au":["aw"], "ia":["ja"], "ie":["iy"], "iu":["ju"], "ua":["wa"], "ue":["uy"], "ui":["wi"], "ku":['q'], "xu":['Q'], "Nu":['W'], 'b':['mb'], 'd':['nd'], 'g':['Ng'], 'W':['NW']}
     undel = "q,T,K"
-    order = ["harm",'pen',"bs",'del','ins','chg']
+    order = ["harm", 'pen', "bs", 'del', 'ins', 'chg']
     geminate = "A+F"
-    phonotax = Phonotactics("r",2,2,FSA.fromRegex("[CV|*C[AV|VA]]"),RegexToFSA("[CAV*F|AV(F)|{C}[VA*F|V{F}]]"),RegexToFSA("{C}[AV|V[A|*F]]"),False)
-    codas = {'m':['n'],'n':['m','N'],'N':['n']}
+    phonotax = Phonotactics("r", 2, 2, FSA.fromRegex("[CV|*C[AV|VA]]"), FSA.fromRegex("[CAV*F|AV(F)|{C}[VA*F|V{F}]]"), FSA.fromRegex("{C}[AV|V[A|*F]]"), False)
+    codas = {'m':['n'], 'n':['m', 'N'], 'N':['n']}
     vowels = 'V'
-    harmonies = [Assimilation([['h'],['r','n','d'],['r','n','t','s','T'],['r','m','b'],['r','m','p','f'],['r','N','g'],['r','N','W','k','q','x','Q','K'],['r','p','t','k','q','T','K','s','f','x','Q']],False)]
-    badstrings = ["rer","rar","rur","rir"]
+    harmonies = [Assimilation([['h'], ['r', 'n', 'd'], ['r', 'n', 't', 's', 'T'], ['r', 'm', 'b'], ['r', 'm', 'p', 'f'], ['r', 'N', 'g'], ['r', 'N', 'W', 'k', 'q', 'x', 'Q', 'K'], ['r', 'p', 't', 'k', 'q', 'T', 'K', 's', 'f', 'x', 'Q']], False)]
+    badstrings = ["rer", "rar", "rur", "rir"]
     conjugations = {'N':
-        zip(["Null","Abs","Erg","Gen","SL","DL","Dat","Adj"],
-        ["_","_a","_ru","_t","_bi","_KiW","_usa","_fe"])}
+        zip(["Null", "Abs", "Erg", "Gen", "SL", "DL", "Dat", "Adj"],
+        ["_", "_a", "_ru", "_t", "_bi", "_KiW", "_usa", "_fe"])}
 elif text == "harmony":
-    cats = {'C':['p','t','k','n','m'],'V':['a','e','i','u']}
+    cats = {'C':['p', 't', 'k', 'n', 'm'], 'V':['a', 'e', 'i', 'u']}
     ins = {}
-    chgs = {'pa':['pu'],'ti':['ta','ki']}
+    chgs = {'pa':['pu'], 'ti':['ta', 'ki']}
     undel = ""
-    order = ['pen', 'del', 'ins',"harm",'chg',"bs"]
+    order = ['pen', 'del', 'ins', "harm", 'chg', "bs"]
     geminate = ""
-    phonotax = Phonotactics("n",0,0,FSA.fromRegex("CV(C)"),False,False,False)
-    codas = {'m':['n'],'n':['m'],'t':['p','k'],'p':['t'],'k':['t']}
+    phonotax = Phonotactics("n", 0, 0, FSA.fromRegex("CV(C)"), False, False, False)
+    codas = {'m':['n'], 'n':['m'], 't':['p', 'k'], 'p':['t'], 'k':['t']}
     vowels = 'V'
-    harmonies = [Assimilation([['p','m'],['n','t'],['k']],False),Assimilation([['u','i'],['a']],['a','i','u'])]
+    harmonies = [Assimilation([['p', 'm'], ['n', 't'], ['k']], False), Assimilation([['u', 'i'], ['a']], ['u', 'i','a'])]
     badstrings = False
     conjugations = {}
 else:
@@ -51,7 +51,7 @@ else:
     while text != "next":
         new = text.strip().split(':')
         new1 = new[1].split(',')
-        ins[new[0]] = (new1[0],new1[1])
+        ins[new[0]] = (new1[0], new1[1])
         text = raw_input("more? ")
     chgs = {}
     text = raw_input("now changes, written as before:after, with ending forms split by comma, next to continue ")
@@ -87,16 +87,16 @@ else:
         text = raw_input("primary stresed syllables? ")
         psphon = False
         if "false" not in text.lower():
-            psphon = RegexToFSA(text.strip())
+            psphon = FSA.fromRegex(text.strip())
         text = raw_input("secondary stressed syllables? ")
         ssphon = False
         if "false" not in text.lower():
-            ssphon = RegexToFSA(text.strip())
+            ssphon = FSA.fromRegex(text.strip())
         text = raw_input("syllables on the hanging edge? ")
         bephon = False
         if "false" not in text.lower():
-            bephon = RegexToFSA(text.strip())
-        usphon = RegexToFSA(raw_input("necessary: unstressed syllables? "))
+            bephon = FSA.fromRegex(text.strip())
+        usphon = FSA.fromRegex(raw_input("necessary: unstressed syllables? "))
     else:
         place = foot = psphon = ssphon = bephon = False
         print "now for the syllable structure, with some unique syntax"
@@ -108,8 +108,8 @@ else:
         print "() and {} can work like [] with the |"
         print "so {C|A}V(V)*C is how syllable structure looks"
         print "writing false means that you don't have that structure, and it uses the next best thing"
-        usphon = RegexToFSA(raw_input("syllable structure? "))
-    phonotax = Phonotactics(side,place,foot,usphon,psphon,ssphon,bephon)
+        usphon = FSA.fromRegex(raw_input("syllable structure? "))
+    phonotax = Phonotactics(side, place, foot, usphon, psphon, ssphon, bephon)
     print "what changes can be made in the coda?"
     text = raw_input("insert as changes: ")
     codas = {}
@@ -125,11 +125,15 @@ else:
     text = raw_input("next to skip, or type in an assimilation class ")
     while text != "next":
         if "done" in text:
-            harmonies += [Assimilation(harmclasses,False)]
+            harmonies += [Assimilation(harmclasses, False)]
             harmclasses = []
         elif "tier" in text:
-            tier = text.split()[1] + [seg for cat in text.split()[1] for seg in cats[cat] if cat in cats]
-            harmonies += [Assimilation(harmclasses,tier)]
+            split = text.split()
+            if len(split) == 1:
+                tier = []
+            else:
+                tier = split[1] + [seg for cat in split()[1] for seg in cats[cat] if cat in cats]
+            harmonies += [Assimilation(harmclasses, tier)]
             harmclasses = []
         else:
             harmclasses += [list(text)]
@@ -138,15 +142,15 @@ else:
     while text != "next":
         names = raw_input("insert names of conjugations, split by commas ").split(",")
         forms = raw_input("insert forms  of conjugations, split by commas, corresponding to names, and with _ for where the root goes ").split(",")
-        conjugations[text] = zip(names,forms)
+        conjugations[text] = zip(names, forms)
 
-phono = Phonology(cats,ins,chgs,undel,phonotax,order,geminate,codas,vowels,harmonies,badstrings)
+phono = Phonology(cats, ins, chgs, undel, phonotax, order, geminate, codas, vowels, harmonies, badstrings)
     
 
 print "summarizing:"
 phono.prettyprint()
 
-lang = Language(phono,conjugations)
+lang = Language(phono, conjugations)
 
 print "put in an underlying form to see a surface form, . to finish "
 text = raw_input("underlying ")
@@ -161,5 +165,5 @@ while text != ".":
         print "time to generate: ", time.time() - begin
     else:
         text = text.strip().split()
-        lang.conjugate(text[1],text[0])
+        lang.conjugate(text[1], text[0])
     text = raw_input("underlying ")
