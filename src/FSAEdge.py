@@ -2,7 +2,7 @@ from Weight import Weight
 
 class FSAEdge:
     #weights are state the edge comes from, state it goes to, label, and weight
-    def __init__(self,frm,to,label,weight):
+    def __init__(self,frm,to,label,weight=[]):
         self.frm = frm
         self.to = to
         self.label = label

@@ -2,47 +2,16 @@ from FSAEdge import FSAEdge
 from Weight import Weight
 from PriorityQueue import PriorityQueue
 import copy
+from FSM import FSM
 
 import time
 
-class FSA:
-    #fields: starting state, ending states, list of all states, and list of edges
-    def __init__(self,start,ends,states,edges):
-        self.start = start
-        self.ends = ends
-        self.states = states
-        self.edges = edges
-        
-    #This is a print function for a graph if you want to use graphviz to visualize it
-    def graphviz(self):
-        string = "digraph finite_state_machine {\nrankdir=LR;\n"
-        string += "\nnode [shape = doublecircle];"
-        def graphvizstate(state):
-            try:
-                return '"' + str(state) + '"'
-            except TypeError:
-                strstate = map(str,state)
-                return '"' + "".join(strstate) + '"'
-        for state in self.ends:
-            string += " " + graphvizstate(state)
-        string += ";\nnode [shape = circle];"
-        for edge in self.edges:
-            string += edge.graphviz()
-        return string + '}'
-        
-    def prettyprint(self):
-        print "states: ", self.states
-        print "start: ", self.start
-        print "ends: ", self.ends
-        print "edges: "
-        for edge in self.edges:
-            edge.prettyprint()
-    
-    def addEdge(self,frm,to,label,weight):
+class FSA(FSM):    
+    def addEdge(self,frm,to,label,weight=[]):
         self.edges += [FSAEdge(frm,to,label,weight)]
         return self
         
-    def Product(self,fsa):
+    def product(self,fsa):
         self.crunchEdges()
         fsa.crunchEdges()
 
@@ -51,14 +20,20 @@ class FSA:
         ends = []
         stack = [start]
         edges = []
+        
+        selfAsFromState = self.stateFrom()
+        fsaAsFromState = fsa.stateFrom()
+        
         while stack:
             (x,y) = stack.pop()
             if (x,y) not in states:
                 states += [(x,y)]
                 if x in self.ends and y in fsa.ends:
                     ends += [(x,y)]
-                selfEdges = [e for e in self.edges if e.frm == x]
-                fsaEdges = [e for e in fsa.edges if e.frm == y]
+                    
+                selfEdges = selfAsFromState[x]
+                fsaEdges = fsaAsFromState[y]
+                
                 for selfEdge in selfEdges:
                     for fsaEdge in fsaEdges:
                         if selfEdge.label == fsaEdge.label:
@@ -69,10 +44,10 @@ class FSA:
                                 edges += [FSAEdge((x,y),toState,label,selfEdge.weight + fsaEdge.weight)]
         return FSA(start,ends,states,edges).Trim()
         
-    def Replace(self,state,fsa):
+    def replace(self,state,fsa):
         fsa = copy.deepcopy(fsa)
         for state1 in fsa.states:
-            fsa.replaceState(state1,state + "-" + str(state1))
+            fsa.replaceState(state1,str(state) + "-" + str(state1))
         self.states += fsa.states
         if state == self.start:
             self.start = fsa.start
@@ -88,27 +63,7 @@ class FSA:
                     potential += [FSAEdge(end,edge.to,edge.label,edge.weight)]
         self.edges += potential
         self.edges += fsa.edges
-        
-    def replaceState(self,old,new):
-        if self.start == old:
-            self.start = new
-        self.ends = [new if end == old else end for end in self.ends]
-        self.states = [new if state == old else state for state in self.states]
-        for edge in self.edges:
-            edge.replaceState(old,new)
-            
-    def Quotient(self,states):
-        choice = states[0]
-        for state in states[1:]:
-            self.replaceState(state,choice)
-        self.ends = list(set(self.ends))
-        self.states = list(set(self.states))
-            
-    #This shouldn't really be useful unless you want to visualize everything better
-    def relabelStates(self):
-        newStates = enumerate(self.states)
-        for state in newStates:
-            self.replaceState(state[1],state[0])
+        return self
     
     def addString(self,frm,to,string,wgt):
         temp = [str(frm) + string + str(i) for i in range(1,len(string))]
@@ -120,12 +75,6 @@ class FSA:
             else:
                 self.addEdge(item[0],item[2],item[1],[])
         return self
-        
-    def Reverse(self):
-        self.capEnd()
-        self.start, self.ends = self.ends[0], [self.start]
-        for edge in self.edges:
-            edge.Reverse()
         
     def Trim(self):
         stack = copy.copy(self.ends)
@@ -150,9 +99,6 @@ class FSA:
             for end in self.ends:
                 self.edges += [FSAEdge(end,"END","_",[])]
             self.ends = ["END"]
-                
-    def edgeSet(self,state):
-        return set([edge for edge in self.edges if edge.frm == state])
         
     def addBlanks(self):
         for state in self.states:
@@ -177,23 +123,24 @@ class FSA:
         queue = PriorityQueue(self.states)
         queue.update(self.start,Weight([]),[""])
 
+        stateFrom = self.stateFrom()
+
         while queue:
             current = queue.pop()
             if current.weight == Weight.infiniteWeight():
                 return False
             if current.label in self.ends:
                 return (current.weight,current.paths)
-            for edge in self.edges:
-                if edge.frm == current.label:
-                    if edge.to in [item.label for item in queue.list[1:]]:
-                        newWeight = current.weight + edge.weight
-                        label = edge.label if edge.label != '_' else ""
-                        paths = list(set([path + label for path in current.paths]))
-                        if newWeight < queue.getWeight(edge.to):
-                            queue.update(edge.to,newWeight,paths)
-                        if newWeight == queue.getWeight(edge.to):
-                            paths = list(set(paths + queue.getPaths(edge.to)))
-                            queue.update(edge.to,newWeight,paths)
+            for edge in stateFrom[current.label]:
+                if edge.to in [item.label for item in queue.list[1:]]:
+                    newWeight = current.weight + edge.weight
+                    label = edge.label if edge.label != '_' else ""
+                    paths = list(set([path + label for path in current.paths]))
+                    if newWeight < queue.getWeight(edge.to):
+                        queue.update(edge.to,newWeight,paths)
+                    if newWeight == queue.getWeight(edge.to):
+                        paths = list(set(paths + queue.getPaths(edge.to)))
+                        queue.update(edge.to,newWeight,paths)
         return False
     
     def determinize(self):
@@ -248,6 +195,39 @@ class FSA:
                             fsa.ends += [newState]
         return fsa
     
+    def equivalent(self,other):
+        fsa = self.determinize()
+        fsb = other.determinize()
+        
+        aFrom = {state : {(e.label,e.weight):e.to for e in edges} for (state,edges) in fsa.stateFrom().items()}
+        bFrom = {state : {(e.label,e.weight):e.to for e in edges} for (state,edges) in fsb.stateFrom().items()}
+        
+        stack = [fsa.start]
+        bijection = {fsa.start : fsb.start}
+        while stack:
+            current = stack.pop()
+            aStateDict = aFrom[current]
+            bStateDict = bFrom[bijection[current]]
+            if sorted(aStateDict.keys()) != sorted(bStateDict.keys()):
+                return False
+            for label in aStateDict:
+                if aStateDict[label] in bijection:
+                    bState = bijection[aStateDict[label]]
+                    if bState != bStateDict[label]:
+                        return False
+                else:
+                    bijection[aStateDict[label]] = bStateDict[label]
+                    stack += [aStateDict[label]]
+        return sorted([bijection[end] for end in fsa.ends]) == sorted(fsb.ends)
+    
+    def minimize(self):
+        self = self.determinize()
+        self.Reverse()
+        self = self.determinize()
+        self.Reverse()
+        self = self.determinize()
+        return self
+    
     @classmethod
     def fromString(cls,string):
         start = 0
@@ -267,7 +247,7 @@ class FSA:
         def ThompsonRecurse(start,end,string):
             open = max(fsa.states) + 1
             if len (string) < 1:
-                fsa.Quotient([end,start])
+                fsa.quotient([end,start])
             elif string[0] in '([{':
                 if string[0] == '(':
                     fsa.edges += [FSAEdge(start,open,'_',[''])]
@@ -303,7 +283,7 @@ class FSA:
                 if remainder:
                     ThompsonRecurse(open,end,remainder)
                 else:
-                    fsa.Quotient([end,open])
+                    fsa.quotient([end,open])
             elif len(string) == 1:
                 fsa.edges += [FSAEdge(start,end,string,[])]
                 if open not in fsa.states:
@@ -327,10 +307,7 @@ class FSA:
             return
         ThompsonRecurse(0,'f',regex)
         fsa.states += ['f']
+        
+        fsa.minimize()
+        
         return fsa
-    
-    def __hash__(self):
-        return hash((self.start, set(self.ends),set(self.states),set(self.edges)))
-
-    def __eq__(self, other):
-        return (self.start, set(self.ends),set(self.states),set(self.edges)) == (other.start, set(other.ends),set(other.states),set(other.edges))
