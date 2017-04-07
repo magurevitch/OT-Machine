@@ -117,29 +117,30 @@ class Phonology:
             fsa.addEdge("I","I",symb,[])
         if(self.badstrings):
             for bs in self.badstrings:
-                fsa = fsa.Product(self.badString(bs))
+                fsa = fsa.product(self.badString(bs))
         return fsa
     
     # This generates the list of all surface forms that fit phonotactics, as a list of syllables, and list of penalties
     def phonologyFSA(self,string):
         fsa = FSA.fromString(string)
         fst = self.modificationFST()
-        fsa = fst.Product(fsa)
+        fsa = fst.product(fsa)
         fsa.edges += [FSAEdge(state,state,'.',[]) for state in fsa.states]
         fsa.edges += [FSAEdge(state,state,'_',[]) for state in fsa.states]
         fsa.crunchEdges()
         phonotax = self.phonotax.PhonotacticFSA()
         phonotax = self.categorizeFsa(phonotax)
-        fsa = fsa.Product(phonotax)
+        fsa = fsa.product(phonotax)
         fsa = fsa.determinize()
         fsa.edges = [edge for edge in fsa.edges if not(edge.frm == edge.to and edge.label == ".")]
         fsa.addEdge(fsa.start,fsa.start,"_",[])
         fst = self.codasFST()
-        fsa = fst.Product(fsa)
+        fsa = fst.product(fsa)
         fsa.relabelStates()
+        symbols = self.getSymbols()
         for harm in self.harmonies:
-            fsa = fsa.Product(harm.harmonyFSA(self))
-        fsa = fsa.Product(self.badStrings())
+            fsa = fsa.product(harm.harmonyFSA(symbols))
+        fsa = fsa.product(self.badStrings())
         return fsa
 
     #This function takes the contenders, and finds the ones with the minimum penalty

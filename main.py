@@ -1,9 +1,9 @@
 import time
-from FSA import FSA
-from Phonology import Phonology
-from Phonotactics import Phonotactics
-from Assimilation import Assimilation
-from Language import Language
+from src.FSA import FSA
+from src.Phonology import Phonology
+from src.Phonotactics import Phonotactics
+from src.Assimilation import Assimilation
+from src.Language import Language
 
 print "welcome to my OT machine!"
 print "let's first figure out your language"

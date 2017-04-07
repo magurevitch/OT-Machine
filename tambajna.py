@@ -1,9 +1,9 @@
 import time
-from FSA import FSA
-from Phonology import Phonology
-from Phonotactics import Phonotactics
-from Assimilation import Assimilation
-from Language import Language
+from src.FSA import FSA
+from src.Phonology import Phonology
+from src.Phonotactics import Phonotactics
+from src.Assimilation import Assimilation
+from src.Language import Language
 
 cats = {'C':['p','t','k','q','b','d','g','T','K','n','m','N','W','h','f','s','x','Q','r'],'A':['w','y',"j"],'V':['a','e','i','u'],'F':['p','t','k','n','m','N','f','s','x','r'],'P':['p','t','k','q','b','d','g','T','K'],'S':['f','s','x','Q','r']}
 ins = {'P':("e","a"),'V':("h","b"),'S':("e","b")}

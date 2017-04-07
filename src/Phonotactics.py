@@ -42,7 +42,7 @@ class Phonotactics:
             print "Unstressed syllables are"
             self.usphon.prettyprint()
             
-    def SyllableFSA(self):
+    def syllableFSA(self):
         fsa = FSA("I",["I"],["I"],[])
         if self.placement in [False,0]:
             fsa.addEdge("I","I",".",[])
@@ -71,21 +71,21 @@ class Phonotactics:
         return fsa
     
     def PhonotacticFSA(self):
-        fsa = self.SyllableFSA()
+        fsa = self.syllableFSA()
         
         if len(fsa.states) == 1:
-            fsa.Replace("I",self.usphon)
+            fsa.replace("I",self.usphon)
         for state in set(fsa.states):
             if "-" not in state:
                 if "." in state:
-                    fsa.Replace(state,self.usphon)
+                    fsa.replace(state,self.usphon)
                 elif "P" in state:
-                    fsa.Replace(state,self.psphon)
+                    fsa.replace(state,self.psphon)
                 elif "B" in state:
-                    fsa.Replace(state,self.bephon)
+                    fsa.replace(state,self.bephon)
                 elif "S" in state:
                     if self.ssphon:
-                        fsa.Replace(state,self.ssphon)
+                        fsa.replace(state,self.ssphon)
                     else:
-                        fsa.Replace(state,self.psphon)
+                        fsa.replace(state,self.psphon)
         return fsa
