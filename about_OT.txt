@@ -1,0 +1,66 @@
+Optimality Theory (OT) is a theory of linguistics, and mostly Phonology, the study of sounds.
+
+Many parts of linguistics posit an "underlying form" and a "surface form." For example, in English, while we think of "baseball" as being "base" + "ball", it sounds more like it would be "basepall."
+
+The traditional way of describing how to get from the underlying form to the surface form was by writing down rules, such as "b becomes a p after an s," or to summarize a lot of changes "[+voice] becomes [-voice] after a [-voice]" (voicing is the vibration of the vocal folds in a certain way. The sounds of b and p are about the same, except b is voiced and p is unvoiced)
+
+However, this way of describing that difference can't describe why those rules are generated, or what makes one language choose one or the other.
+
+In the following paragaphs, I will use my own transcription, with underlying forms in slashes like /form/ and surface forms in square brackets like [form]
+
+The following verbs will be an example
+
+spy: underlying: /spai/, past: [spaid], 3rd person singular present: [spaiz]
+call: underlying: /kol/, past: [kold], 3rd person singular present: [kolz]
+back: underlying /bäk/, past: [bäkt], 3rd person singular present: [bäks]
+pat: underlying: /pät/, past: [pätid], 3rd person singular present: [päts]
+pass: underlying: /päs/, past: [päst], 3rd person singular present: [päsiz]
+raise: underlying: /reiz/, past: [reizd], 3rd person singular present: [reiziz]
+load: underlying: /loud/, past: [loudid], 3rd person singular present: [loudz]
+
+We could say that all these have the same underlying markers to get to the forms, /d/ and /z/, and then some sort of phonological changes to get the surface forms
+
+One statement of them is:
+/d/ becomes [id] after [t,d] and [t] after [k,s]
+/z/ becomes [iz] after [s,z] and [s] after [k,t]
+
+If you are really good at generalizing rules, you might even state them as
+for each category C, [CC] always becomes [CiC]
+[+voice] becomes [-voice] before a [-voice]
+
+So, for English, we could make these generalizations, but in many cases, there seem to be a conspiracy to get rid of bad forms.
+
+The OT way to do the same thing is to specify that a langauge takes an input, generates all possible changes to it (changing things around, inserting vowels, etc.), and then comparing which of those candidates works the best.
+
+There are usually two kinds of constraints: faithfulness constraints are penalties you get from changing, inserting, deleting, or other things that make a candidate different from the underlying form, and markedness constraints, which are when the surface form is not what a language wants.
+
+For this example, we could make the markedness constraints "voicing disagreement" and "same category"
+
+Then, we get things like:
+underlying: /bäkz/
+candidates:
+[bäkz] - constraints: [voicing]
+[bäks] - constraints: [change]
+[bäkiz] - constraints: [insertion]
+[bäkis] - constraints: [insertion, change]
+
+underlying: /reizz/
+condidates:
+[reizz] - constraints: [category]
+[reizs] - constraints: [category, voicing, change]
+[reiziz] - constraints: [insertion]
+[reizis] - constraints: [insertion, change]
+
+English is more ok with changing than with insertion or voicing violations, and it is ok with insertion over category violations, so we get our surface forms.
+
+This theory allows us to be computational, and deal with new words or situations that we haven't seen before, like with borrowing foreign words.
+
+This OT machine doesn't compute every single candidate. Instead, it uses Finite State Automata (FSAs) to make all the paths, and then uses Dijkstra's algorithm to traverse it.
+
+An FSA is a weighted labelled digraph. What it does is have a bunch of states you could be in, and then labelled arrows to get between then, and a set of final states.
+
+An FSA uses its states as a physical form of memory, allowing one to use it for only needing to show all paths. For example, you could have all edges whose labels are vowels go to a state that represents having just seen a vowel.
+
+I use it with edges having 4 pieces of information: the state it is going from, the state that it is going to, the label of what it sees between them, and a weight of constraints going along that path would violate.
+
+Dijkstra's algorithm traverses the paths to see which is the best, by starting at the beginning and remembering what the best path to each state from there is.

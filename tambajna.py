@@ -1,4 +1,5 @@
 import time
+import src.controller as controller
 from src.FSA import FSA
 from src.Phonology import Phonology
 from src.Phonotactics import Phonotactics
@@ -12,9 +13,9 @@ undel = "q,T,K"
 order = ["harm",'pen',"bs",'del','ins','chg']
 geminate = "A+F"
 phonotax = Phonotactics("r",2,2,
-    FSA.fromRegex("[CV|*C[AV|VA]]"),
-    FSA.fromRegex("[CAV*F|AV(F)|{C}[VA*F|V{F}]]"),
-    FSA.fromRegex("{C}[AV|V[A|*F]]"),
+    FSA.fromRegex("[[C|A]V|VA]"),
+    FSA.fromRegex("[C[[AV|VA]*F|V{F}]|AV{F|A}]"),
+    FSA.fromRegex("[(C)AV|CV[A|*F]]"),
     False)
 codas = {'m':['n'],'n':['m','N'],'N':['n']}
 vowels = 'V'
@@ -33,15 +34,12 @@ lang = Language(phono,conjugations)
 print "put in an underlying form to see a surface form, . to finish "
 text = raw_input("underlying ")
 while text != ".":
-    if len(text.strip().split()) == 1:
-        begin = time.time()
-        best = phono.best(text)
-        print "dict", best[0]
-        print "surface forms:"
-        for ps in best[1]:
-            print ps
-        print "time to generate: ", time.time() - begin
+    words = text.strip().split()
+    if len(words) == 2 and words[0] in lang.conjugations:
+            entry = lang.conjugate(words[0],words[1])
+            print controller.toVerboseString(entry)
     else:
-        text = text.strip().split()
-        lang.conjugate(text[1],text[0])
+        for word in words:
+            entry = lang.entry(word)
+            print controller.toVerboseString(entry)
     text = raw_input("underlying ")

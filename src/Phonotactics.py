@@ -66,7 +66,7 @@ class Phonotactics:
             fsa.ends += ["B","P","EP"]
         else:
             fsa.ends = [state for state in fsa.states if "I" not in state]
-        if "r" in self.side:
+        if "r" in self.side or "R" in self.side:
             fsa.Reverse()
         return fsa
     

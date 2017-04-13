@@ -93,7 +93,7 @@ class FSA(FSM):
         self = fsa
         return fsa
         
-    def capEnd(self):
+    def capEnd(self):        
         if len(self.ends) > 1:
             self.states += ["END"]
             for end in self.ends:
@@ -118,6 +118,8 @@ class FSA(FSM):
         return self
             
     def Dijkstra(self):
+        if len(self.ends) == 0:
+            return (False,False)
         self.capEnd()
         
         queue = PriorityQueue(self.states)
@@ -128,7 +130,7 @@ class FSA(FSM):
         while queue:
             current = queue.pop()
             if current.weight == Weight.infiniteWeight():
-                return False
+                return (False,False)
             if current.label in self.ends:
                 return (current.weight,current.paths)
             for edge in stateFrom[current.label]:
@@ -243,6 +245,9 @@ class FSA(FSM):
     #* to mean "the symbol after can be included with penalty or excluded", and not anything with repetition
     # and the octothorpe # to mean penalty
     def fromRegex(cls,regex):
+        if not regex:
+            return False
+        
         fsa = cls(0,['f'],[0],[])
         def ThompsonRecurse(start,end,string):
             open = max(fsa.states) + 1
