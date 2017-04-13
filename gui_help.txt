@@ -1,0 +1,56 @@
+This machine uses a simplified version of Optimality Theory for Phonology.
+
+The machine has two parts: one to specify things about your langauge, and one to use the langauge to generate surface forms.
+
+The Langauge secion:
+
+Categories:
+for each entry you put in, put your single-character category under the label button, and comma-or-space separated phones in that category in the types section.
+
+Put sounds or categories of sounds that cannot be deleted, comma-or-space separated, in the undeletables section.
+
+The geminates is for sounds or categories that can be geminated.
+
+The vowels is where you put the categories or sounds that are vowels. This is to make sure every syllable has a vowel, and allows you to specify changes that only occur in codas.
+
+Bad strings is where you insert, as sounds, never with any categories, what sequences of sounds are bad in your language.
+
+The order is where you decide what constraints are more or less bad in your conlang. Select one and use the arrow buttons to reörder it. The top are the worst violations, and the bottom are the least bad.
+
+The six violations are: "bs- having a Bad String," "chg- CHanGing a sound," "del- DELeting a sound," "harm - violating a HARMony or assimilation," "ins - INSerting a sound," and "pen- having a phonotactics violation PENalty"
+
+Insertion column lets you for each entry specify what sound you can insert near a specified sound or category, and if it is before or after.
+
+Changes lets you list out what a sequence of sounds can change into, as a comma-or-space separated list.
+
+Assimilations lets you make classes of things like assimilation, vowel harmony, etc. A tier is when only some sounds interact, and it can go long distance. If it is not in a tier, every subsequent pair is checked. The entries in the tier are things in the tier that are opaque - that is, stop the long distance harmony.
+
+The lists after specifying things about if it is a tier are where you put each sound that you try to harmonize with in a single line.
+
+For example, if you have front-back vowel harmony that is stopped by [a] but goes through [y] as if it were transparent, then you check tier, which should contain [a], and then in one row, put [u o] and another row put [i e]
+
+IN THE FUTURE, WILL ALLOW DISSIMILATION SIMILARLY
+
+In the conjugations table, you can add in each conjugation. The from name should be something like "nominative" and the form should leave a blank for each place the root appears (so reduplication with a t in the middle is _t_)
+
+The phonotactics are what syllables and the order of syllables look like.
+
+If all syllables have the same structure, you don't need to specify the side. If you want stressed syllables to look different, then choose which side it determines stress from.
+
+The primary stres placement is where in the word the primary stress goes, and the syllables between stresses determines where secondary stress is.
+
+Entries to the stress should look like this:
+
+If you are choosing between things, put them in brackets or the appropriate parenthases. Square brackets are neutrally decide between them. The choices should be separated by a pipe,slash, or backslash
+
+Things in parenthases are optional, and in curly braces, {}, optional, but you get a penalty for not having any of the options inside.
+
+A * before a symbol means that it is optional, but there is a penalty if you have it.
+
+A # before a symbol means that there is a penalty if you choose the next symbol
+
+If you don't put anything for a category, it defaults to the phonotactics of the next best possible thing (e.g. primary stress in secondary stressed syllables)
+
+TO CHECK IN FUTURE: will allow all non-primary stressed syllables to be unstressed if 0 syllables between stresses.
+
+FUTURE: WILL ALLOW TO CHECK IF CAN SKIP OR ADD UNSTRESSED SYLLABLE.

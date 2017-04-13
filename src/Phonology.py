@@ -39,8 +39,8 @@ class Phonology:
         print "after", self.vowels, "you can change:"
         for (bef,af) in self.codas.items():
             print '/' + bef + "/ -> /" + "/,/".join(af) + '/'
-        print "You can't delete:" + self.undel
-        print "you can save syllables by geminating: " + self.geminate
+        print "You can't delete:" + ",".join(self.undel)
+        print "you can save syllables by geminating: " + ",".join(self.geminate)
         self.phonotax.prettyprint()
         if self.harmonies:
             print "harmonies and assimilations are"
@@ -136,7 +136,6 @@ class Phonology:
         fsa.addEdge(fsa.start,fsa.start,"_",[])
         fst = self.codasFST()
         fsa = fst.product(fsa)
-        fsa.relabelStates()
         symbols = self.getSymbols()
         for harm in self.harmonies:
             fsa = fsa.product(harm.harmonyFSA(symbols))
@@ -145,19 +144,16 @@ class Phonology:
 
     #This function takes the contenders, and finds the ones with the minimum penalty
     def best(self,string):
-        begin = time.time()
         fsa = self.phonologyFSA(string)
-        print "states", len(fsa.states)
-        print "edges", len(fsa.edges)	
-        print "time to make FSA: ", begin - time.time()
-        begin = time.time()
         
         (weight,winners) = fsa.Dijkstra()
+        
+        if not winners:
+            return ([],[])
         
         winners = [winner.replace("_","").strip(".") for winner in winners]
         winners = list(set(winners))
         
-        print "time to traverse: ", begin - time.time()
         return (str(weight),winners)
         
     def categorizeFsa(self,fsa):
