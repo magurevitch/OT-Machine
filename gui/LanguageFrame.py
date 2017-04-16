@@ -1,6 +1,7 @@
 from Tkinter import *
 import sys
 sys.path.append('../')
+import ast
 import src.controller as controller
 from PhonotacticsFrame import PhonotacticsFrame
 from ExpandingFrames import ExpandingListFrame, ListFrame, ConjugationFrame, AssimilationFrame
@@ -15,13 +16,13 @@ class LanguageFrame(Frame):
         self.tambajna.bind("<Button-1>",self.insertTambajna)
         self.tambajna.grid(row = 0,column=0)
         
-        self.getLanguage = Button(self.buttonFrame,text = "Get the language")
+        self.getLanguage = Button(self.buttonFrame,text = "Get the language from the text box")
         self.getLanguage.bind("<Button-1>",self.getLangauge)
         self.getLanguage.grid(row = 0, column = 1)
         
-        self.getLanguage = Button(self.buttonFrame,text = "Set the language")
-        self.getLanguage.bind("<Button-1>",lambda event: self.insertLanguage(eval(self.languageText.get("1.0",END))))
-        self.getLanguage.grid(row = 0, column = 2)
+        self.setLanguage = Button(self.buttonFrame,text = "Set the language from the text box")
+        self.setLanguage.bind("<Button-1>",lambda event: self.insertLanguage(ast.literal_eval(self.languageText.get("1.0",END))))
+        self.setLanguage.grid(row = 0, column = 2)
         
         self.clearButton = Button(self.buttonFrame,text = "Clear")
         self.clearButton.bind("<Button-1>",self.clear)
@@ -115,7 +116,7 @@ class LanguageFrame(Frame):
 
     def insertTambajna(self,event):
         file = open("./src/tambajna_phonology.txt","r")
-        dictionary = eval(file.read())
+        dictionary = ast.literal_eval(file.read())
         file.close()
         
         self.insertLanguage(dictionary)
@@ -135,7 +136,6 @@ class LanguageFrame(Frame):
             "bad strings": [],
             "conjugations": {}
             }
-        print blankLanguage
         self.insertLanguage(blankLanguage)
         
     def help(self,event):

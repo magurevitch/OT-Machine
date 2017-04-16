@@ -42,6 +42,23 @@ def toVerboseString(entry):
             string += "No surface forms"
     return string
 
+def toXML(entry):
+    def helperToXML(entry, indent):
+        indentSpaces = indent * " "
+        if isinstance(entry, list):
+            between = "</form>\n" + indentSpaces + "<form>"
+            return indentSpaces + "<form>" + between.join(entry) + "</form>\n"
+        elif isinstance(entry, dict):
+            string = ""
+            for (key,value) in entry.items():
+                string += indentSpaces + "<" + key + ">\n" + helperToXML(value, indent + 1) + indentSpaces + "</" + key + ">\n"
+            return string
+        return indentSpaces + str(entry) + "\n"
+    if "conjugation" in entry:
+        return "<conjugationOutput>\n" + helperToXML(entry,1) + "</conjugationOutput>\n"
+    else:
+        return "<entry>\n" + helperToXML(entry,1) + "</entry>\n"
+
 def makeLanguage(dictionary):
     
     dictPhonotax = dictionary["phonotactics"]
@@ -65,5 +82,6 @@ def makeLanguage(dictionary):
 
 toForm = {
     "String": toString,
-    "Verbose String": toVerboseString
+    "Verbose String": toVerboseString,
+    "XML": toXML
     }

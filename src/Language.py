@@ -14,7 +14,6 @@ class Language:
         response["status"] = all([entry["status"] for entry in response["forms"].values()])
         return response
         
-    
     def entry(self,word):
         begin = time.time()
         (weight,surfaceForms) = self.phono.best(word)
