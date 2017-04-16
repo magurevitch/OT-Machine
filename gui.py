@@ -30,7 +30,7 @@ class Application:
     def makeToggleFrame(self,master):
         frame = Frame(master)
         
-        self.toWordsButton = Button(frame, text="run the machine")
+        self.toWordsButton = Button(frame, text="run the machine with current language")
         self.toWordsButton.bind("<Button-1>",self.toWords)
         self.toLanguageButton = Button(frame, text="tinker with your language")
         self.toLanguageButton.bind("<Button-1>",self.toLanguage)

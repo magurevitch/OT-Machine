@@ -26,7 +26,7 @@ class WordsFrame(Frame):
         self.outputSelection.set("String")
 
         self.outputMenu = OptionMenu(self,self.outputSelection,
-                                     "String","Verbose String")
+                                     "String","Verbose String", "XML")
         self.outputMenu.grid(row = 0, column = 4)
         
         self.submit = Button(self, text = "find surface forms")
@@ -46,7 +46,7 @@ class WordsFrame(Frame):
         
     def surfaceForms(self,event):
         conjugation = self.selectedConjugation.get()
-        words = self.entry.get().strip().replace(' ', ',').split()
+        words = self.entry.get().strip().replace(' ', ',').split(',')
         if conjugation == " ":
             entries = [self.language.entry(word) for word in words]
         else:

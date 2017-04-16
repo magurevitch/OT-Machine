@@ -35,8 +35,15 @@
     "bad strings": ["rer","rar","rur","rir"],
     "conjugations": {
                 "N":
-                    zip(
-                        ["Null","Abs","Erg","Gen","SL","DL","Dat","Adj"],
-                        ["_","_a","_ru","_t","_bi","_KiW","_usa","_fe"]
-                )}
+                    [
+                        ("Null","_"),
+                        ("Abs","_a"),
+                        ("Erg","_ru"),
+                        ("Gen","_t"),
+                        ("SL","_bi"),
+                        ("DL","_KiW"),
+                        ("Dat","_usa"),
+                        ("Adj","_fe")
+                    ]
+                }
 }
