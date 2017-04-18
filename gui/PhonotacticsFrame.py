@@ -14,6 +14,10 @@ class PhonotacticsFrame(Frame):
         self.footVar.trace("w",self.showSecondary)
         self.placementVar = StringVar()
         self.placementVar.set("1")
+        self.deleteVar = BooleanVar()
+        self.deleteVar.set(False)
+        self.insertVar = BooleanVar()
+        self.insertVar.set(False)
         
         self.alwaysFrame = Frame(self)
         self.primaryFrame = Frame(self)
@@ -44,6 +48,9 @@ class PhonotacticsFrame(Frame):
         self.foot = Spinbox(self.primaryFrame,from_=0,to=10,textvariable=self.footVar)
         self.foot.grid(row=1,column=1)
         
+        Checkbutton(self.primaryFrame,text = "can insert",variable=self.insertVar).grid(row=4,column = 0)
+        Checkbutton(self.primaryFrame,text = "can delete",variable=self.deleteVar).grid(row=4,column = 1)
+        
     def showPrimary(self,*args):
         if self.sideVar.get() == "None":
             self.primaryFrame.grid_forget()
@@ -66,7 +73,9 @@ class PhonotacticsFrame(Frame):
             "unstressed": self.unstressed.get(),
             "primary stress": self.primaryStress.get(),
             "secondary stress": self.secondaryStress.get(),
-            "bad edge": self.badEdge.get()
+            "bad edge": self.badEdge.get(),
+            "can insert": self.insertVar.get(),
+            "can delete": self.deleteVar.get()
             }
         
     def insert(self,dictionary):
@@ -77,6 +86,8 @@ class PhonotacticsFrame(Frame):
         insertToEntry(self.primaryStress,dictionary["primary stress"])
         insertToEntry(self.badEdge,dictionary["bad edge"])
         insertToEntry(self.secondaryStress,dictionary["secondary stress"])
+        self.deleteVar.set(dictionary["can delete"])
+        self.insertVar.set(dictionary["can insert"])
         
 def insertToEntry(entry,string):
     entry.delete(0,"end")

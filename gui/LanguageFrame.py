@@ -16,7 +16,7 @@ class LanguageFrame(Frame):
         self.tambajna.bind("<Button-1>",self.insertTambajna)
         self.tambajna.grid(row = 0,column=0)
         
-        self.getLanguage = Button(self.buttonFrame,text = "Get the language from the text box")
+        self.getLanguage = Button(self.buttonFrame,text = "Get the language from the entries")
         self.getLanguage.bind("<Button-1>",self.getLangauge)
         self.getLanguage.grid(row = 0, column = 1)
         
@@ -129,7 +129,7 @@ class LanguageFrame(Frame):
             "undeletables": [],
             "order": ["bs","chg","del","harm","ins","pen"],
             "geminates": [],
-            "phonotactics": {"side":"None","foot":0,"placement":1,"unstressed":"","primary stress":"","secondary stress": "","bad edge": ""},
+            "phonotactics": {"side":"None","foot":0,"placement":1,"unstressed":"","primary stress":"","secondary stress": "","bad edge": "","can delete":False,"can insert":False},
             "codas": {},
             "vowels": [],
             "harmonies": [],

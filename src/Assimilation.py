@@ -2,11 +2,14 @@ from FSA import FSA
 from Weight import Weight
 
 class Assimilation:
-    def __init__(self,lists,opaques=False):
+    def __init__(self,lists,opaques=False,dissimilation=False):
         self.lists = lists
         self.opaques = opaques
+        self.dissimilation = dissimilation
         
     def prettyprint(self):
+        if self.dissimilation:
+            print "The following is a dissimilation"
         print "The harmonic groups are:"
         for group in self.lists:
                 print '/'+"/,/".join(group)+'/'
@@ -29,16 +32,16 @@ class Assimilation:
         fsa.states += harmonics
         fsa.ends += harmonics
         
-        for state in fsa.states:
-            if state != "Neutral":
-                fsa.addEdge("Neutral",state,state,[])
         for state1 in harmonics:
             for state2 in harmonics:
-                fsa.addEdge(state1,state2,state2,["harm"])
+                fsa.addEdge(state1,state2,state2,[] if self.dissimilation else ["harm"])
         for list in self.lists:
             for edge in fsa.edges:
                 if edge.to in list and edge.frm in list:
-                    edge.weight = Weight([])
+                    edge.weight = Weight(["harm"] if self.dissimilation  and edge.to != edge.frm else [])
+        for state in fsa.states:
+            if state != "Neutral":
+                fsa.addEdge("Neutral",state,state,[])
             
         for state in fsa.states:
             fsa.addEdge(state,state,".",[])

@@ -67,9 +67,11 @@ def makeLanguage(dictionary):
         FSA.fromRegex(dictPhonotax["unstressed"]),
         FSA.fromRegex(dictPhonotax["primary stress"]),
         FSA.fromRegex(dictPhonotax["secondary stress"]),
-        FSA.fromRegex(dictPhonotax["bad edge"])
+        FSA.fromRegex(dictPhonotax["bad edge"]),
+        dictPhonotax['can insert'],
+        dictPhonotax['can delete']
         )
-    harmonies = [Assimilation(entry["lists"],entry["tier"]) for entry in dictionary["harmonies"]]
+    harmonies = [Assimilation(entry["lists"],entry["tier"],entry["dissimilation"]) for entry in dictionary["harmonies"]]
     
     phonology = Phonology(
         dictionary["categories"],dictionary["insertions"],dictionary["changes"],
