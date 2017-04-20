@@ -15,7 +15,7 @@ class TestPhonologyMethods(unittest.TestCase):
         inserts = {'V':('t','b'),'C':('i','a')}
         changes = {"fi":["fa","pi"]}
         undel = ['t','i']
-        phonotax = Phonotactics("n", 0, 0, False, False, False, False)
+        phonotax = Phonotactics("n", 0, 0, False, False, False, False,False,False)
         order = ["harm",'pen',"bs",'del','ins','chg']
         geminate = "V"
         codas = {'f':['p'],'t':['p','f']}

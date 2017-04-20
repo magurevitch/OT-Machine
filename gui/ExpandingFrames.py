@@ -141,6 +141,11 @@ class AssimilationFrame(Frame):
         Checkbutton(self.tierFrame,text = "is it in a tier?", variable = self.hasList).grid(row=0,columnspan=2)
         self.hasList.trace("w",self.turnOnList)
         
+        self.dissimilation = BooleanVar()
+        self.dissimilation.set(False)
+        Radiobutton(self,text = "Assimilation",variable = self.dissimilation, value = False).pack()
+        Radiobutton(self,text = "Dissimilation",variable = self.dissimilation, value = True).pack()
+        
         self.expand.pack()
         
     def addEntry(self,event):
@@ -152,7 +157,8 @@ class AssimilationFrame(Frame):
     def get(self):
         return {
             "tier": self.list.get().replace(' ', ',').split() if self.hasList.get() else False,
-            "lists": [entry.get() for entry in self.column]
+            "lists": [entry.get() for entry in self.column],
+            "dissimilation": self.dissimilation.get()
             }
         
     def turnOnList(self, *args):

@@ -20,7 +20,8 @@ elif text == "harmony":
     dictionary["order"] = ['pen', 'del', 'ins', "harm", 'chg', "bs"]
     dictionary["geminates"] = []
     dictionary["phonotactics"] = {"side":"None","foot":0,"placement":0,"unstressed":"CV(C)",
-                                  "bad edge":False,"primary stress":False,"secondary stress": False}
+                                  "bad edge":False,"primary stress":False,"secondary stress": False,
+                                  "can insert": False, "can delete": False}
     dictionary["codas"] = {'m':['n'], 'n':['m'], 't':['p', 'k'], 'p':['t'], 'k':['t']}
     dictionary["vowels"] = ['V']
     dictionary["harmonies"] = [
@@ -78,8 +79,11 @@ else:
         text = raw_input("syllables on the hanging edge? ")
         dictionary["phonotactics"]["bad edge"] = text.strip() if "false" not in text.lower() else False
         dictionary["phonotactics"]["unstressed"] = raw_input("necessary: unstressed syllables? ").strip()
+        dictionary["phonotactics"]["can insert"] = raw_input("can I have an extra unstressed syllable? ").lower() not in "nofalse"
+        dictionary["phonotactics"]["can delete"] = raw_input("can I drop an unstressed syllable? ").lower() not in "nofalse"
     else:
-        place = foot = psphon = ssphon = bephon = False
+        for element in ["placement","foot","primary stress","secondary stress","bad edge","can insert","can delete"]:
+            dictionary["phonotactics"][element] = False
         print "now for the syllable structure, with some unique syntax"
         print "* before a symbol means either don't have the symbol or have the thing with a penalty"
         print "# before a symbol means take a penalty"
@@ -105,6 +109,7 @@ else:
     text = raw_input("next to skip, or type in an assimilation class ")
     while text != "next":
         if "done" in text:
+            harmdict["dissimilation"] = raw_input("Is this a dissmilation, as opposed to an assimilation? ").lower() not in "nofalse"
             dictionary["harmonies"] += [harmdict]
             harmdict = {"lists":[],"tier":False}
         elif "tier" in text:
@@ -113,6 +118,7 @@ else:
                 harmdict["tier"] = []
             else:
                 harmdict["tier"] = split[1] + [seg for cat in split()[1] for seg in cats[cat] if cat in cats]
+            harmdict["dissimilation"] = raw_input("Is this a dissmilation, as opposed to an assimilation? ").lower() not in "nofalse"
             dictionary["harmonies"] += [harmdict]
             harmdict = {"lists":[],"tier":False}
         else:
