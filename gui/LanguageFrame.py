@@ -16,7 +16,7 @@ class LanguageFrame(Frame):
         self.tambajna.bind("<Button-1>",self.insertTambajna)
         self.tambajna.grid(row = 0,column=0)
         
-        self.getLanguage = Button(self.buttonFrame,text = "Get the language from the text box")
+        self.getLanguage = Button(self.buttonFrame,text = "Get the language from the entries")
         self.getLanguage.bind("<Button-1>",self.getLangauge)
         self.getLanguage.grid(row = 0, column = 1)
         
@@ -84,10 +84,10 @@ class LanguageFrame(Frame):
             "codas": self.codas.get(),
             "harmonies": self.assimilations.get(),
             "conjugations": self.conjugations.get(),
-            "undeletables": self.undeletables.get().replace(' ', ',').split(','),
+            "undeletables": self.undeletables.get().replace(' ', ',').split(',') if self.undeletables.get() else False,
             "geminates": self.geminates.get().replace(' ', ',').split(','),
             "vowels": self.vowels.get().replace(' ', ',').split(','),
-            "bad strings": self.badstrings.get().replace(' ', ',').split(','),
+            "bad strings": self.badstrings.get().replace(' ', ',').split(',') if self.badstrings.get() else False,
             "order": self.orderFrame.get()
             }
         
@@ -100,8 +100,8 @@ class LanguageFrame(Frame):
     def insertLanguage(self, dictionary):
         insertToEntry(self.vowels, " ".join(dictionary["vowels"]))
         insertToEntry(self.geminates, " ".join(dictionary["geminates"]))
-        insertToEntry(self.undeletables, " ".join(dictionary["undeletables"]))
-        insertToEntry(self.badstrings, " ".join(dictionary["bad strings"]))
+        insertToEntry(self.undeletables, " ".join(dictionary["undeletables"]) if dictionary["undeletables"] else "")
+        insertToEntry(self.badstrings, " ".join(dictionary["bad strings"]) if dictionary["bad strings"] else "")
         self.orderFrame.order.delete(0, 6)
         for num, item in enumerate(dictionary["order"]):
             self.orderFrame.order.insert(num, item)
@@ -129,7 +129,7 @@ class LanguageFrame(Frame):
             "undeletables": [],
             "order": ["bs","chg","del","harm","ins","pen"],
             "geminates": [],
-            "phonotactics": {"side":"None","foot":0,"placement":1,"unstressed":"","primary stress":"","secondary stress": "","bad edge": ""},
+            "phonotactics": {"side":"None","foot":0,"placement":1,"unstressed":"","primary stress":"","secondary stress": "","bad edge": "","can delete":False,"can insert":False},
             "codas": {},
             "vowels": [],
             "harmonies": [],

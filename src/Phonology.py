@@ -56,28 +56,31 @@ class Phonology:
 
     def modificationFST(self):
         fst = FST.selfLooping(list(self.getSymbols()) + ['_'])
-        for sym in list(self.getSymbols()) + ["_"]:
-            cats = self.getCategories(sym)
-            if all(map(lambda x: x not in self.undel,cats)):
-                fst.addEdge(0,0,sym,'_',["del"])
+        if self.undel:
+            for sym in list(self.getSymbols()) + ["_"]:
+                cats = self.getCategories(sym)
+                if all(map(lambda x: x not in self.undel,cats)):
+                    fst.addEdge(0,0,sym,'_',["del"])
         for original in self.changes:
             for changed in self.changes[original]:
                 fst.addString(0,0,original,changed,["chg"])
-        for edge in copy.deepcopy(fst.edges):
-            cats = self.getCategories(edge.changed)
-            if any(map(lambda x: x in self.geminate,cats)):
-                fst.addString(edge.frm,edge.to,edge.original,edge.changed + edge.changed,edge.weight + Weight(["ins"]))
-        for edge in copy.deepcopy(fst.edges):
-            cats = self.getCategories(edge.changed)
-            for cat in cats:
-                if cat in self.inserts:
-                    string = ""
-                    if "b" in self.inserts[cat][1] and edge.frm == 0:
-                        string = self.inserts[cat][0] + edge.changed
-                    if "a" in self.inserts[cat][1] and edge.to == 0:
-                        string = edge.changed + self.inserts[cat][0]
-                    if string != "":
-                        fst.addString(edge.frm,edge.to,edge.original,string,edge.weight + Weight(["ins"]))
+        if self.geminate:
+            for edge in copy.deepcopy(fst.edges):
+                cats = self.getCategories(edge.changed)
+                if any(map(lambda x: x in self.geminate,cats)):
+                    fst.addString(edge.frm,edge.to,edge.original,edge.changed + edge.changed,edge.weight + Weight(["ins"]))
+        if self.inserts:
+            for edge in copy.deepcopy(fst.edges):
+                cats = self.getCategories(edge.changed)
+                for cat in cats:
+                    if cat in self.inserts:
+                        string = ""
+                        if "b" in self.inserts[cat][1] and edge.frm == 0:
+                            string = self.inserts[cat][0] + edge.changed
+                        if "a" in self.inserts[cat][1] and edge.to == 0:
+                            string = edge.changed + self.inserts[cat][0]
+                        if string != "":
+                            fst.addString(edge.frm,edge.to,edge.original,string,edge.weight + Weight(["ins"]))
         return fst
         
     def codasFST(self):
@@ -125,6 +128,7 @@ class Phonology:
         fsa = FSA.fromString(string)
         fst = self.modificationFST()
         fsa = fst.product(fsa)
+        
         fsa.edges += [FSAEdge(state,state,'.',[]) for state in fsa.states]
         fsa.edges += [FSAEdge(state,state,'_',[]) for state in fsa.states]
         fsa.crunchEdges()
@@ -140,6 +144,7 @@ class Phonology:
         for harm in self.harmonies:
             fsa = fsa.product(harm.harmonyFSA(symbols))
         fsa = fsa.product(self.badStrings())
+        
         return fsa
 
     #This function takes the contenders, and finds the ones with the minimum penalty

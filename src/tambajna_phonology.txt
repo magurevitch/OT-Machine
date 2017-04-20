@@ -17,7 +17,9 @@
                 "unstressed":"[[C|A]V|VA]",
                 "primary stress":"[C[[AV|VA]*F|V{F}]|AV{F|A}]",
                 "secondary stress": "[(C)AV|CV[A|*F]]",
-                "bad edge": ""
+                "bad edge": "",
+                "can insert": False,
+                "can delete": False
     },
     "codas": {"m":["n"],"n":["m","N"],"N":["n"]},
     "vowels": ["V"],
@@ -30,7 +32,8 @@
                  ["r","N","g"],
                  ["r","N","W","k","q","x","Q","K"],
                  ["r","p","t","k","q","T","K","s","f","x","Q"]],
-            "tier":False
+        "tier":False,
+        "dissimilation": False
     }],
     "bad strings": ["rer","rar","rur","rir"],
     "conjugations": {
