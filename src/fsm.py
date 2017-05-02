@@ -49,16 +49,18 @@ class FSM:
     #This shouldn't really be useful unless you want to visualize everything better           
     def relabelStates(self):                                                                  
         newStates = enumerate(self.states)                                                    
-        for state in newStates:                                                               
-            self.replaceState(state[1],state[0])                                              
+        for (new,old) in newStates:                                                               
+            self.replaceState(old,new)                                              
                                                                                               
-    def Reverse(self):                                                                        
+    def reverse(self):                                                                        
         self.capEnd()                                                                         
         self.start, self.ends = self.ends[0], [self.start]                                    
         for edge in self.edges:                                                               
-            edge.Reverse()
+            edge.reverse()
 
-    def stateFrom(self):
+    def stateFrom(self,tup=False):
+        if tup:
+            return {fromState : [e.tuple() for e in self.edges if e.frm == fromState] for fromState in self.states}
         return {fromState : [e for e in self.edges if e.frm == fromState] for fromState in self.states}
     
     def __hash__(self):                                                                                                                             

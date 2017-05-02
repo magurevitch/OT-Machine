@@ -2,11 +2,9 @@ import unittest
 import sys
 sys.path.append('../')
 
-from src.FSA import FSA
-from src.FSAEdge import FSAEdge
-from src.FST import FST
-from src.FSTEdge import FSTEdge
-from src.Weight import Weight
+from src.fsa import FSA, FSAEdge
+from src.fst import FST, FSTEdge
+from src.weight import Weight
 
 class TestFSTMethods(unittest.TestCase):
     def test_product(self):
@@ -165,6 +163,7 @@ class TestFSAMethods(unittest.TestCase):
         
         self.assertTrue(actualFSA.equivalent(expectedFSA),"simple product is not working")
         self.assertTrue(actualFSA.equivalent(symmetricFSA),"FSA product is not symmetrical")
+        self.assertTrue(fsa1.multiproduct([fsa2]).equivalent(expectedFSA), "multiproduct doesn't work")
         
     def test_product_blanks(self):
         fsa1 = FSA(0,[2],[0,1,2],[
@@ -197,6 +196,7 @@ class TestFSAMethods(unittest.TestCase):
         
         self.assertTrue(actualFSA.equivalent(expectedFSA),"blanks product is not working")
         self.assertTrue(actualFSA.equivalent(symmetricFSA),"FSA product is not symmetrical")
+        self.assertTrue(fsa1.multiproduct([fsa2]).equivalent(expectedFSA), "multiproduct doesn't work")
         
     def test_replace(self):
         innerFSA = FSA('A',['B','C'],['A','B','C'],[
@@ -225,7 +225,7 @@ class TestFSAMethods(unittest.TestCase):
             FSAEdge(1,3,'e',['pen'])
             ])
         
-        (weight,paths) = fsa.Dijkstra()
+        (weight,paths) = fsa.dijkstra()
         
         self.assertEqual(weight,Weight(['pen','pen','pen']),"Dijkstra's goes down the correct weights")
         self.assertEqual(set(paths),set(['bce','bd']),"Dijkstra's goes down the correct paths")

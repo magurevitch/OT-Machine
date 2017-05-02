@@ -2,12 +2,10 @@ import unittest
 import sys
 sys.path.append('../')
 
-from src.FSA import FSA
-from src.FST import FST
-from src.Phonology import Phonology
-from src.Phonotactics import Phonotactics
-from src.FSTEdge import FSTEdge
-from src.FSAEdge import FSAEdge
+from src.fsa import FSA, FSAEdge
+from src.fst import FST, FSTEdge
+from src.phonology import Phonology
+from src.phonotactics import Phonotactics
 
 class TestPhonologyMethods(unittest.TestCase):
     def setUp(self):
@@ -67,6 +65,7 @@ class TestPhonologyMethods(unittest.TestCase):
             ])
         for state in expectedFSA.states:
             expectedFSA.addEdge(state,state,'.')
+        expectedFSA = expectedFSA.minimize()
         
         actualFSA = self.phonology.badStrings()
         

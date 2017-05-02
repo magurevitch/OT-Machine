@@ -1,10 +1,7 @@
-from Weight import Weight
-from FSA import FSA
+from weight import Weight
+from fsa import FSA, FSAEdge
 import copy
-from FSAEdge import FSAEdge
-from FST import FST
-from FSTEdge import FSTEdge
-import time
+from fst import FST, FSTEdge
 
 class Phonology:
     #fields: what categories of sounds do you have, what sounds can be inserted, what changes might happen to a string, what sounds cannot be deleted
@@ -23,21 +20,28 @@ class Phonology:
         self.badstrings = badstrings
         Weight.order = order
         
+        #caching
+        self.cachedMods = self.modificationFST()
+        if self.phonotax.usphon:
+            self.cachedPhonotax = self.categorizeFsa(self.phonotax.phonotacticFSA())
+        self.cachedCodas = self.codasFST()
+        self.cachedBad = self.badStrings()
+        
     def prettyprint(self):
         print "The categories are:"
-        for (cat,reps) in self.categories.items():
+        for (cat,reps) in self.categories.iteritems():
             print cat + ": " + '/' + "/,/".join(reps) + '/'
         print "You can instert a:"
-        for (cat,ins) in self.inserts.items():
+        for (cat,ins) in self.inserts.iteritems():
             if "a" in ins[1]:
                 print "/" + ins[0] + "/ after a " + cat
             else:
                 print "/" + ins[0] + "/ before a " + cat
         print "you can change:"
-        for (bef,af) in self.changes.items():
+        for (bef,af) in self.changes.iteritems():
             print '/' + bef + "/ -> /" + "/,/".join(af) + '/'
         print "after", self.vowels, "you can change:"
-        for (bef,af) in self.codas.items():
+        for (bef,af) in self.codas.iteritems():
             print '/' + bef + "/ -> /" + "/,/".join(af) + '/'
         print "You can't delete:" + ",".join(self.undel)
         print "you can save syllables by geminating: " + ",".join(self.geminate)
@@ -74,11 +78,12 @@ class Phonology:
                 cats = self.getCategories(edge.changed)
                 for cat in cats:
                     if cat in self.inserts:
+                        (symb,side) = self.inserts[cat]
                         string = ""
-                        if "b" in self.inserts[cat][1] and edge.frm == 0:
-                            string = self.inserts[cat][0] + edge.changed
-                        if "a" in self.inserts[cat][1] and edge.to == 0:
-                            string = edge.changed + self.inserts[cat][0]
+                        if "b" in side and edge.frm == 0:
+                            string = symb + edge.changed
+                        if "a" in side and edge.to == 0:
+                            string = edge.changed + symb
                         if string != "":
                             fst.addString(edge.frm,edge.to,edge.original,string,edge.weight + Weight(["ins"]))
         return fst
@@ -105,45 +110,50 @@ class Phonology:
                 fsa.addEdge(edge.frm,"S",symb,[])
         for state in fsa.states:
             fsa.addEdge(state,state,".",[])
-            fsa.addEdge(state,state,"_",[])
         for edge in fsa.edges:
             if edge.label == string[0]:
                 edge.to = "S" + string + "1"
-            if edge.weight == Weight(["bs"]) and self.overlap(string,string):
-                edge.to = "S" + string + str(self.overlap(string,string))
+            if edge.weight == Weight(["bs"]) and overlap(string,string):
+                edge.to = "S" + string + str(overlap(string,string))
         fsa.ends = fsa.states
         return fsa
     
     def badStrings(self):
         fsa = FSA("I",["I"],["I"],[])
-        for symb in list(self.getSymbols())+[".","_"]:
+        for symb in list(self.getSymbols())+["."]:
             fsa.addEdge("I","I",symb,[])
         if(self.badstrings):
-            for bs in self.badstrings:
-                fsa = fsa.product(self.badString(bs))
+            fsa = fsa.multiproduct(map(lambda bs: self.badString(bs),self.badstrings))
+        fsa = fsa.minimize()
+        fsa.relabelStates()
+        for state in fsa.states:
+            fsa.addEdge(state,state,"_")
         return fsa
     
     # This generates the list of all surface forms that fit phonotactics, as a list of syllables, and list of penalties
     def phonologyFSA(self,string):
         fsa = FSA.fromString(string)
-        fst = self.modificationFST()
-        fsa = fst.product(fsa)
+        
+        fsa = self.cachedMods.product(fsa)
         
         fsa.edges += [FSAEdge(state,state,'.',[]) for state in fsa.states]
         fsa.edges += [FSAEdge(state,state,'_',[]) for state in fsa.states]
         fsa.crunchEdges()
-        phonotax = self.phonotax.PhonotacticFSA()
-        phonotax = self.categorizeFsa(phonotax)
-        fsa = fsa.product(phonotax)
+        
+        fsa = self.cachedPhonotax.product(fsa)
+        
         fsa = fsa.determinize()
-        fsa.edges = [edge for edge in fsa.edges if not(edge.frm == edge.to and edge.label == ".")]
+        fsa.edges = [edge for edge in fsa.edges
+                     if edge.frm not in fsa.ends
+                     if not(edge.frm == edge.to and edge.label == ".")
+                     ]
         fsa.addEdge(fsa.start,fsa.start,"_",[])
-        fst = self.codasFST()
-        fsa = fst.product(fsa)
-        symbols = self.getSymbols()
-        for harm in self.harmonies:
-            fsa = fsa.product(harm.harmonyFSA(symbols))
-        fsa = fsa.product(self.badStrings())
+        
+        fsa = self.cachedCodas.product(fsa)
+        
+        symbols = set(edge.label for edge in fsa.edges) - set([".","_"])
+        
+        fsa = fsa.multiproduct(map(lambda x: x.harmonyFSA(symbols), self.harmonies) + [self.cachedBad])
         
         return fsa
 
@@ -151,7 +161,7 @@ class Phonology:
     def best(self,string):
         fsa = self.phonologyFSA(string)
         
-        (weight,winners) = fsa.Dijkstra()
+        (weight,winners) = fsa.dijkstra()
         
         if not winners:
             return ([],[])
@@ -166,7 +176,9 @@ class Phonology:
         for edge in fsa.edges:
             if edge.label in self.categories:
                 potential += [FSAEdge(edge.frm,edge.to,cat,edge.weight) for cat in self.categories[edge.label]]
-        fsa.edges += potential
+            else:
+                potential += [edge]
+        fsa.edges = potential
         for state in fsa.states:
             fsa.addEdge(state,state,"_",[])
         return fsa
@@ -174,9 +186,8 @@ class Phonology:
     def getSymbols(self):
         return set([item for list in self.categories.values() for item in list])
         
-    @classmethod
-    def overlap(cls,A,B):
-        for i in range(1,min(len(A),len(B))):
-            if A[:i] == B[-i:]:
-                return i
-        return False
+def overlap(A,B):
+    for i in range(1,min(len(A),len(B))):
+        if A[:i] == B[-i:]:
+            return i
+    return False

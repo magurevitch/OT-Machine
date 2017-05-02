@@ -2,9 +2,8 @@ import unittest
 import sys
 sys.path.append('../')
 
-from src.FSA import FSA
-from src.FSAEdge import FSAEdge
-from src.Phonotactics import Phonotactics
+from src.fsa import FSA, FSAEdge
+from src.phonotactics import Phonotactics
 
 class TestPhonotacticMethods(unittest.TestCase):
     def test_syllable_FSA_leftside(self):
@@ -288,9 +287,10 @@ class TestPhonotacticMethods(unittest.TestCase):
                 FSAEdge("S","S",".",["pen"]),
                 FSAEdge("S","P",".",["pen"])
             ])
-        
+
         phonotactics = Phonotactics("r",1,1,False,False,False,False,True,True)
         
         actualFSA = phonotactics.syllableFSA()
-        self.assertTrue(actualFSA.equivalent(expectedFSA), "insert edge case phonotactics not working")
+        
+        self.assertTrue(actualFSA.equivalent(expectedFSA), "insert and delete edge case phonotactics not working")
         

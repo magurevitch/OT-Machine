@@ -1,5 +1,5 @@
-from FSA import FSA
-from Weight import Weight
+from fsa import FSA
+from weight import Weight, zeroWeight
 
 class Assimilation:
     def __init__(self,lists,opaques=False,dissimilation=False):
@@ -18,17 +18,18 @@ class Assimilation:
         if self.opaques:
             print "The non-transparent elements of the harmony opaques are: /"+"/,/".join(self.opaques)+'/'
             
-    def getHarmonics(self):
-        return set([item for list in self.lists for item in list])
+    def getHarmonics(self,symbols):
+        allSymbols = set(item for list in self.lists for item in list)
+        return allSymbols & symbols
         
     def getNeutrals(self,symbols):
-        harmonics = self.getHarmonics()
+        harmonics = self.getHarmonics(symbols)
         return symbols - harmonics
         
     def harmonyFSA(self,symbols):
         fsa = FSA("Neutral",["Neutral"],["Neutral"],[])
         
-        harmonics = self.getHarmonics()
+        harmonics = self.getHarmonics(symbols)
         fsa.states += harmonics
         fsa.ends += harmonics
         
@@ -38,7 +39,7 @@ class Assimilation:
         for list in self.lists:
             for edge in fsa.edges:
                 if edge.to in list and edge.frm in list:
-                    edge.weight = Weight(["harm"] if self.dissimilation  and edge.to != edge.frm else [])
+                    edge.weight = Weight(["harm"]) if self.dissimilation and edge.to != edge.frm else zeroWeight
         for state in fsa.states:
             if state != "Neutral":
                 fsa.addEdge("Neutral",state,state,[])

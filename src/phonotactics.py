@@ -1,5 +1,4 @@
-from FSA import FSA
-from FSAEdge import FSAEdge
+from fsa import FSA, FSAEdge
 
 class Phonotactics:
     #fields: which side the stress counts from, where the placement of the primary stress is
@@ -97,10 +96,10 @@ class Phonotactics:
             if edge.frm == "I":
                 edge.label = "_"
         if "r" in self.side or "R" in self.side:
-            fsa.Reverse()
+            fsa.reverse()
         return fsa
     
-    def PhonotacticFSA(self):
+    def phonotacticFSA(self):
         fsa = self.syllableFSA()
         
         if len(fsa.states) == 1:

@@ -1,7 +1,7 @@
 from Tkinter import *
 import sys
 sys.path.append('../')
-from src.Language import Language
+from src.language import Language
 import src.controller as controller
 
 class WordsFrame(Frame):

@@ -2,9 +2,8 @@ import unittest
 import sys
 sys.path.append('../')
 
-from src.FSA import FSA
-from src.FSAEdge import FSAEdge
-from src.Assimilation import Assimilation
+from src.fsa import FSA, FSAEdge
+from src.assimilation import Assimilation
 
 class TestAssimilationMethods(unittest.TestCase):
     def test_local_harmony(self):
