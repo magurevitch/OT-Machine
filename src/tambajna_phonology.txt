@@ -16,7 +16,7 @@
                 "placement":2,
                 "unstressed":"[[C|A]V|VA]",
                 "primary stress":"[C[[AV|VA]*F|V{F}]|AV{F|A}]",
-                "secondary stress": "[(C)AV|CV[A|*F]]",
+                "secondary stress": "[(C)AV|CV(A)]",
                 "bad edge": "",
                 "can insert": False,
                 "can delete": False

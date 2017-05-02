@@ -1,8 +1,8 @@
-from Language import Language
-from Phonotactics import Phonotactics
-from Assimilation import Assimilation
-from FSA import FSA
-from Phonology import Phonology
+from language import Language
+from phonotactics import Phonotactics
+from assimilation import Assimilation
+from fsa import FSA
+from phonology import Phonology
 
 def toString(entry):
     string = ""
@@ -50,7 +50,7 @@ def toXML(entry):
             return indentSpaces + "<form>" + between.join(entry) + "</form>\n"
         elif isinstance(entry, dict):
             string = ""
-            for (key,value) in entry.items():
+            for (key,value) in entry.iteritems():
                 string += indentSpaces + "<" + key + ">\n" + helperToXML(value, indent + 1) + indentSpaces + "</" + key + ">\n"
             return string
         return indentSpaces + str(entry) + "\n"
