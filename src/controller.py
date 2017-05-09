@@ -60,27 +60,29 @@ def toXML(entry):
         return "<entry>\n" + helperToXML(entry,1) + "</entry>\n"
 
 def makeLanguage(dictionary):
+    try:
+        dictPhonotax = dictionary["phonotactics"]
+        phonotactics = Phonotactics(
+            dictPhonotax["side"],dictPhonotax["placement"],dictPhonotax["foot"],
+            FSA.fromRegex(dictPhonotax["unstressed"]),
+            FSA.fromRegex(dictPhonotax["primary stress"]),
+            FSA.fromRegex(dictPhonotax["secondary stress"]),
+            FSA.fromRegex(dictPhonotax["bad edge"]),
+            dictPhonotax['can insert'],
+            dictPhonotax['can delete']
+            )
+        harmonies = [Assimilation(entry["lists"],entry["tier"],entry["dissimilation"]) for entry in dictionary["harmonies"]]
     
-    dictPhonotax = dictionary["phonotactics"]
-    phonotactics = Phonotactics(
-        dictPhonotax["side"],dictPhonotax["placement"],dictPhonotax["foot"],
-        FSA.fromRegex(dictPhonotax["unstressed"]),
-        FSA.fromRegex(dictPhonotax["primary stress"]),
-        FSA.fromRegex(dictPhonotax["secondary stress"]),
-        FSA.fromRegex(dictPhonotax["bad edge"]),
-        dictPhonotax['can insert'],
-        dictPhonotax['can delete']
-        )
-    harmonies = [Assimilation(entry["lists"],entry["tier"],entry["dissimilation"]) for entry in dictionary["harmonies"]]
+        phonology = Phonology(
+            dictionary["categories"],dictionary["insertions"],dictionary["changes"],
+            dictionary["undeletables"],phonotactics,dictionary["order"],
+            dictionary["geminates"],dictionary["codas"],dictionary["vowels"],
+            harmonies,dictionary["bad strings"]
+            )
     
-    phonology = Phonology(
-        dictionary["categories"],dictionary["insertions"],dictionary["changes"],
-        dictionary["undeletables"],phonotactics,dictionary["order"],
-        dictionary["geminates"],dictionary["codas"],dictionary["vowels"],
-        harmonies,dictionary["bad strings"]
-        )
-    
-    return Language(phonology,dictionary["conjugations"])
+        return Language(phonology,dictionary["conjugations"])
+    except:
+        return Language(False,False)
 
 toForm = {
     "String": toString,

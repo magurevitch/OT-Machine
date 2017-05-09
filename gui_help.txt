@@ -2,45 +2,58 @@ This machine uses a simplified version of Optimality Theory for Phonology.
 
 The machine has two parts: one to specify things about your langauge, and one to use the langauge to generate surface forms.
 
-The Langauge secion:
+When you are happy with your conlang, press "run the machine with the current conlang"
+
+The two fields that cannot be null are the "vowels" and the "default syllable"
 
 Categories:
 for each entry you put in, put your single-character category under the label button, and comma-or-space separated phones in that category in the types section.
 
+Vowels:
+Where you put the categories or sounds, comma-or-space separated, that are vowels. This is to make sure every syllable has a vowel, and allows you to specify changes that only occur in codas.
+
+Undeletables:
 Put sounds or categories of sounds that cannot be deleted, comma-or-space separated, in the undeletables section.
 
-The geminates is for sounds or categories that can be geminated.
+Geminates:
+For sounds or categories that can be geminated.
 
-The vowels is where you put the categories or sounds that are vowels. This is to make sure every syllable has a vowel, and allows you to specify changes that only occur in codas.
-
+Bad Strings
 Bad strings is where you insert, as sounds, never with any categories, what sequences of sounds are bad in your language.
 
-The order is where you decide what constraints are more or less bad in your conlang. Select one and use the arrow buttons to reörder it. The top are the worst violations, and the bottom are the least bad.
+Order:
+The order is where you decide what constraints are more or less bad in your conlang. Select a constrain and use the arrow buttons to reörder it. The top are the worst violations, and the bottom are the least bad.
 
 The six violations are: "bs- having a Bad String," "chg- CHanGing a sound," "del- DELeting a sound," "harm - violating a HARMony or assimilation," "ins - INSerting a sound," and "pen- having a phonotactics violation PENalty"
 
-Insertion column lets you for each entry specify what sound you can insert near a specified sound or category, and if it is before or after.
+Changes:
+List out what a sequence of sounds can change into, as a comma-or-space separated list.
 
-Changes lets you list out what a sequence of sounds can change into, as a comma-or-space separated list.
+Changes in codas:
+Like changes, but only for sounds that can change in coda position.
 
-Assimilations lets you make classes of things like assimilation, vowel harmony, etc. A tier is when only some sounds interact, and it can go long distance. If it is not in a tier, every subsequent pair is checked. The entries in the tier are things in the tier that are opaque - that is, stop the long distance harmony.
+Insertions:
+For each entry specify what sound you can insert near a specified sound or category, and if it is before or after.
 
-The lists after specifying things about if it is a tier are where you put each sound that you try to harmonize with in a single line.
+Phonotactics:
+These fields are what syllables and the order of syllables look like.
 
-For example, if you have front-back vowel harmony that is stopped by [a] but goes through [y] as if it were transparent, then you check tier, which should contain [a], and then in one row, put [u o] and another row put [i e]
+Side:
+This menu is to decide what side the stress is determined from. If all syllables have the same structure, you don't need to specify the side. If you want stressed syllables to look different, then choose which side it determines stress from.
 
-IN THE FUTURE, WILL ALLOW DISSIMILATION SIMILARLY
+Primary stress placement:
+Where in the word the primary stress goes
 
-In the conjugations table, you can add in each conjugation. The from name should be something like "nominative" and the form should leave a blank for each place the root appears (so reduplication with a t in the middle is _t_)
+Syllables between stresses:
+If you have no secondary stress in your language, put 0. Otherwise, number of unstressed syllables between stresses.
 
-The phonotactics are what syllables and the order of syllables look like.
+Can insert:
+If checked, your language can insert an unstressed syllable, for a penalty. This allows for variable numbers of unstressed between secondary stresses or for placement.
 
-If all syllables have the same structure, you don't need to specify the side. If you want stressed syllables to look different, then choose which side it determines stress from.
+Can delete:
+If checked, your language can delete an unstressed syllable, for a penalty.
 
-The primary stres placement is where in the word the primary stress goes, and the syllables between stresses determines where secondary stress is.
-
-Entries to the stress should look like this:
-
+Syllable structures:
 If you are choosing between things, put them in brackets or the appropriate parenthases. Square brackets are neutrally decide between them. The choices should be separated by a pipe,slash, or backslash
 
 Things in parenthases are optional, and in curly braces, {}, optional, but you get a penalty for not having any of the options inside.
@@ -51,6 +64,16 @@ A # before a symbol means that there is a penalty if you choose the next symbol
 
 If you don't put anything for a category, it defaults to the phonotactics of the next best possible thing (e.g. primary stress in secondary stressed syllables)
 
-TO CHECK IN FUTURE: will allow all non-primary stressed syllables to be unstressed if 0 syllables between stresses.
+Assimilations:
+Lets you make classes of things like assimilation, vowel harmony, etc.
 
-FUTURE: WILL ALLOW TO CHECK IF CAN SKIP OR ADD UNSTRESSED SYLLABLE.
+A short distance harmony means that phonemes only care about the phonemes next to them.
+
+A long distance harmony means that phonemes interact with the closest phonemes in the same category.
+
+An opaque phoneme is one that stops long distance harmony from going through it.
+
+For example, if you have front-back vowel harmony that is stopped by [a] but goes through [y] as if it were transparent, then you check long distance, put [a] as an opaque, and then in one row, put [u o] and another row put [i e]
+
+Conjugations:
+In the conjugations table, you can add in each conjugation. The from name should be something like "nominative" and the form should leave a blank for each place the root appears (so reduplication with a t in the middle is _t_)

@@ -2,13 +2,12 @@ from Tkinter import *
 from encodings.punycode import insertion_sort
 
 class ExpandingListFrame(Frame):
-    def __init__(self,master,name,columnNames):
+    def __init__(self,master,name,columnNames, secondColumnWidth = 10):
         Frame.__init__(self,master)
         
-        Label(self,text=name).grid(row=0)
+        Label(self,text=name).grid(row=0,columnspan =2)
         
-        self.expand = Button(self,text = "+")
-        self.expand.bind("<Button-1>", self.addEntry)
+        self.expand = ExpansionFrame(self,addFunction = self.addDefault,deleteFunction = self.deleteDefault)
         self.expand.grid(row=2,column=0)
         
         self.firstColumn = []
@@ -20,24 +19,38 @@ class ExpandingListFrame(Frame):
         
         for i in range(len(self.columns)):
             Label(self,text=self.columns[i]).grid(row=1,column = i)
+            
+        self.secondColumnWidth = secondColumnWidth
         
-    def addEntry(self,event):
+    def addDefault(self,event = None):
         self.expand.grid_forget()
-        self.firstColumn += [Entry(self)]
+        self.firstColumn += [Entry(self, width = 7)]
         if len(self.columns) > 1:
-            self.secondColumn += [Entry(self)]
+            self.secondColumn += [Entry(self, width = self.secondColumnWidth)]
         if len(self.columns) > 2:
             self.thirdColumn += [StringVar()]
             self.thirdColumn[-1].set("b")
-        for number in range(len(self.firstColumn)):
+            self.buttons += [Radiobutton(self,text = "before",variable=self.thirdColumn[-1],value="b")]
+            self.buttons += [Radiobutton(self,text = "after",variable=self.thirdColumn[-1],value="a")]
+        for number in xrange(len(self.firstColumn)):
             self.firstColumn[number].grid(row=number+2,column=0)
             if len(self.columns) > 1:
                 self.secondColumn[number].grid(row=number+2,column=1)
             if len(self.columns) > 2:
-                self.buttons += [Radiobutton(self,text = "before",variable=self.thirdColumn[number],value="b")]
-                self.buttons[-1].grid(row=number+2,column=2)
-                self.buttons += [Radiobutton(self,text = "after",variable=self.thirdColumn[number],value="a")]
-                self.buttons[-1].grid(row=number+2,column=3)
+                self.buttons[2*number].grid(row=number+2,column=2)
+                self.buttons[2*number+1].grid(row=number+2,column=3)
+        self.expand.grid(row=len(self.firstColumn)+2)
+    
+    def deleteDefault(self,event = None):
+        self.expand.grid_forget()
+        self.firstColumn.pop().grid_forget()
+        
+        if len(self.columns) > 1:
+            self.secondColumn.pop().grid_forget()
+        if len(self.columns) > 2:
+            self.thirdColumn.pop()
+            self.buttons.pop().grid_forget()
+            self.buttons.pop().grid_forget()
         self.expand.grid(row=len(self.firstColumn)+2)
             
     def get(self):
@@ -52,22 +65,14 @@ class ExpandingListFrame(Frame):
                     for i in range(len(self.firstColumn))}
             
     def clear(self):
-        for i in range(len(self.firstColumn)):
-            self.firstColumn[i].destroy()
-            if len(self.columns) > 1:
-                self.secondColumn[i].destroy()
-        for button in self.buttons:
-            button.destroy()
-        self.firstColumn = []
-        self.secondColumn = []
-        self.thirdColumn = []
-        self.buttons = []
+        while self.firstColumn:
+            self.expand.deleteEntry()
         
     def insert(self, dictionary):
         self.clear()
         
         for (name,entries) in dictionary.items():
-            self.addEntry(None)
+            self.expand.addEntry()
             insertToEntry(self.firstColumn[-1],name)
             if len(self.columns) == 2:
                 insertToEntry(self.secondColumn[-1], " ".join(entries))
@@ -79,22 +84,14 @@ class ListFrame(Frame):
     def __init__(self,master,name,cls):
         Frame.__init__(self,master)
         
-        self.cls = cls
         self.name = name
         
-        self.expand = Button(self,text = "add another " + self.name[:-1])
-        self.expand.bind("<Button-1>", self.addEntry)
+        self.expand = ExpansionFrame(self,cls = cls)
         
         self.column = []
         
         Label(self,text=name).pack()
         
-        self.expand.pack()
-        
-    def addEntry(self,event):
-        self.expand.pack_forget()
-        self.column += [self.cls(self)]
-        self.column[-1].pack()
         self.expand.pack()
             
     def get(self):
@@ -104,41 +101,39 @@ class ListFrame(Frame):
             return [entry.get() for entry in self.column]
         
     def clear(self):
-        for entry in self.column:
-            entry.pack_forget()
-        self.column = []
+        while self.column:
+            self.expand.deleteEntry()
         
     def insert(self,dictionary):
         self.clear()
         
         try:
             for (name,entry) in dictionary.items():
-                self.addEntry(None)
+                self.expand.addEntry()
                 insertToEntry(self.column[-1].name, name)
                 self.column[-1].insert(entry)
         except:
             for assimilation in dictionary:
-                self.addEntry(None)
+                self.expand.addEntry()
                 self.column[-1].insert(assimilation)
     
 class AssimilationFrame(Frame):
     def __init__(self,master):
         Frame.__init__(self,master)
         
-        self.expand = Button(self,text = "+")
-        self.expand.bind("<Button-1>", self.addEntry)
+        self.expand = ExpansionFrame(self)
         
         self.column = []
         
         self.tierFrame = Frame(self)
         self.tierFrame.pack()
         
-        self.listLabel = Label(self.tierFrame, text="Entries in the tier: ")
+        self.listLabel = Label(self.tierFrame, text="Opaque phonemes: ")
         self.list = Entry(self.tierFrame)
         
         self.hasList = IntVar()
         self.hasList.set(0)
-        Checkbutton(self.tierFrame,text = "is it in a tier?", variable = self.hasList).grid(row=0,columnspan=2)
+        Checkbutton(self.tierFrame,text = "is it long distance?", variable = self.hasList).grid(row=0,columnspan=2)
         self.hasList.trace("w",self.turnOnList)
         
         self.dissimilation = BooleanVar()
@@ -146,12 +141,6 @@ class AssimilationFrame(Frame):
         Radiobutton(self,text = "Assimilation",variable = self.dissimilation, value = False).pack()
         Radiobutton(self,text = "Dissimilation",variable = self.dissimilation, value = True).pack()
         
-        self.expand.pack()
-        
-    def addEntry(self,event):
-        self.expand.pack_forget()
-        self.column += [Entry(self)]
-        self.column[-1].pack()
         self.expand.pack()
             
     def get(self):
@@ -173,10 +162,11 @@ class AssimilationFrame(Frame):
         if dictionary["tier"] == False:
             self.hasList.set(0)
         else:
-            insertToEntry(self.list,dictionary["tier"])
+            self.hasList.set(1)
+            insertToEntry(self.list," ".join(dictionary["tier"]))
             
         for group in dictionary["lists"]:
-            self.addEntry(None)
+            self.expand.addEntry()
             insertToEntry(self.column[-1]," ".join(group))
                     
 class ConjugationFrame(ExpandingListFrame):
@@ -194,13 +184,39 @@ class ConjugationFrame(ExpandingListFrame):
         self.clear()
         
         for (name,form) in dictionary:
-            self.addEntry(None)
+            self.expand.addEntry()
             
             insertToEntry(self.firstColumn[-1],name)
             insertToEntry(self.secondColumn[-1],form)
         
+class ExpansionFrame(Frame):
+    def __init__(self,master,cls = Entry, addFunction = False, deleteFunction = False):
+        Frame.__init__(self,master)
         
+        self.cls = cls
+        self.addEntry = addFunction if addFunction else self.addDefault
+        self.deleteEntry = deleteFunction if deleteFunction else self.deleteDefault
         
+        self.expand = Button(self,text = "+")
+        self.expand.bind("<Button-1>", self.addEntry)
+        self.expand.grid(row=0,column=0)
+        
+        self.collapse = Button(self,text = "-")
+        self.collapse.bind("<Button-1>", self.deleteEntry)
+        self.collapse.grid(row=0,column=1)
+        
+    def addDefault(self,event = None):
+        self.pack_forget()
+        self.master.column += [self.cls(self.master)]
+        self.master.column[-1].pack()
+        self.pack()
+        
+    def deleteDefault(self,event = None):
+        if self.master.column:
+            self.pack_forget()
+            self.master.column.pop().pack_forget()
+            self.pack()
+
 def insertToEntry(entry,string):
     entry.delete(0,"end")
     entry.insert(0,string)

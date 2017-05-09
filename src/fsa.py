@@ -1,10 +1,7 @@
 from weight import Weight, zeroWeight, infiniteWeight
 from priority_queue import PriorityQueue
-import copy
 from fsm import FSM
 from collections import deque
-
-import time
 
 class FSA(FSM):    
     def addEdge(self,frm,to,label,weight=zeroWeight):
@@ -12,58 +9,46 @@ class FSA(FSM):
         return self
         
     def product(self,fsa):
-        self.crunchEdges()
-        fsa.crunchEdges()
-
         start = (self.start, fsa.start)
-        states = []
-        ends = []
+        fsa_ = FSA(start,[],[],[])
         stack = deque([start])
-        edges = []
         
         selfAsFromState = self.stateFrom()
         fsaAsFromState = fsa.stateFrom()
         
         while stack:
             (x,y) = stack.pop()
-            if (x,y) not in states:
-                states += [(x,y)]
+            if (x,y) not in fsa_.states:
+                fsa_.states += [(x,y)]
                 if x in self.ends and y in fsa.ends:
-                    ends += [(x,y)]
-                    
-                selfEdges = selfAsFromState[x]
-                fsaEdges = fsaAsFromState[y]
-                
+                    fsa_.ends += [(x,y)]
+
                 partial = [FSAEdge((x,y),(selfEdge.to, fsaEdge.to),selfEdge.label,selfEdge.weight + fsaEdge.weight)
-                          for selfEdge in selfEdges
-                          for fsaEdge in [edge for edge in fsaEdges if edge.label == selfEdge.label]
+                          for selfEdge in selfAsFromState[x]
+                          for fsaEdge in [edge for edge in fsaAsFromState[y] if edge.label == selfEdge.label]
                           if selfEdge.label != '_' or zeroWeight in [selfEdge.weight,fsaEdge.weight]
                           ]
                 stack.extend([edge.to for edge in partial if edge.to != (x,y)])
-                edges += partial
-        fsa = FSA(start,ends,states,edges).trim()
-
-        return fsa
-        
+                fsa_.edges += partial
+        return fsa_.trim()
+    
     def replace(self,state,fsa):
-        fsa = copy.deepcopy(fsa)
-        for state1 in fsa.states:
-            fsa.replaceState(state1,str(state) + "-" + str(state1))
-        self.states += fsa.states
+        def newState(state1):
+            return str(state) + "-" + str(state1)
+        self.states += [newState(state1) for state1 in fsa.states]
         if state == self.start:
-            self.start = fsa.start
+            self.start = newState(fsa.start)
         if state in self.ends:
-            self.ends += fsa.ends
+            self.ends += [newState(state1) for state1 in fsa.ends]
         potential = []
         for edge in self.edges:
             if edge.to == state:
-                edge.to = fsa.start
+                edge.to = newState(fsa.start)
             if edge.frm == state:
-                edge.frm = fsa.ends[0]
-                for end in fsa.ends[1:]:
-                    potential += [FSAEdge(end,edge.to,edge.label,edge.weight)]
+                edge.frm = newState(fsa.ends[0])
+                potential += [FSAEdge(newState(end),edge.to,edge.label,edge.weight) for end in fsa.ends]
         self.edges += potential
-        self.edges += fsa.edges
+        self.edges += [FSAEdge(newState(edge.frm),newState(edge.to),edge.label,edge.weight) for edge in fsa.edges]
         return self
     
     def addString(self,frm,to,string,wgt):
@@ -74,7 +59,7 @@ class FSA(FSM):
             if to_ == to:
                 self.addEdge(frm_,to_,label,wgt)
             else:
-                self.addEdge(frm_,to_,label,[])
+                self.addEdge(frm_,to_,label)
         return self
         
     def trim(self):
@@ -96,13 +81,13 @@ class FSA(FSM):
         if len(self.ends) > 1:
             self.states += ["END"]
             for end in self.ends:
-                self.edges += [FSAEdge(end,"END","_",[])]
+                self.edges += [FSAEdge(end,"END","_")]
             self.ends = ["END"]
         
     def addBlanks(self):
         for state in self.states:
             if all([edge.label != "_" for edge in self.edges if edge.frm == state]):
-                self.addEdge(state,state,"_",[])
+                self.addEdge(state,state,"_")
         
     def crunchEdges(self):
         scoreBoard = {}
@@ -131,11 +116,11 @@ class FSA(FSM):
             for edge in stateFrom[current.label]:
                 if edge.to in queue:
                     newWeight = current.weight + edge.weight
-                    label = edge.label if edge.label != '_' else ""
-                    paths = list(set([path + label for path in current.paths]))
-                    if newWeight <= queue.getWeight(edge.to):
-                        if newWeight == queue.getWeight(edge.to):
-                            paths = list(set(paths + queue.getPaths(edge.to)))
+                    queueWeight = queue.getWeight(edge.to)
+                    if newWeight <= queueWeight:
+                        paths = [path + edge.label for path in current.paths]
+                        if newWeight == queueWeight:
+                            paths += queue.getPaths(edge.to)
                         queue.update(edge.to,newWeight,paths)
         return False
     
@@ -293,7 +278,7 @@ class FSA(FSM):
                     fsa.states += [open]
                 ThompsonRecurse(open,end,string[2:])
             else:
-                fsa.addEdge(start,open,string[0],[])
+                fsa.addEdge(start,open,string[0])
                 if open not in fsa.states:
                     fsa.states += [open]
                 ThompsonRecurse(open,end,string[1:])
@@ -306,24 +291,18 @@ class FSA(FSM):
         return fsa
     
     def multiproduct(self,fsas):
-        self.crunchEdges()
-        for fsa in fsas:
-            fsa.crunchEdges()
-        
         start = (self.start,) + tuple(fsa.start for fsa in fsas)
-        states = []
-        ends = []
+        fsa_ = FSA(start,[],[],[])
         stack = deque([start])
-        edges = []
     
         statesFrom = (self.stateFrom(True),) + tuple(fsa.stateFrom() for fsa in fsas)
         
         while stack:
             current = stack.pop()
-            if current not in states:
-                states += [current]
+            if current not in fsa_.states:
+                fsa_.states += [current]
                 if all([x in fsa.ends for (x, fsa) in zip(current,[self] + fsas)]):
-                    ends += [current]
+                    fsa_.ends += [current]
                 currentEdges = [sf[x] for (x, sf) in zip(current,statesFrom)]
             
                 partial = reduce(lambda xs,ys:
@@ -335,10 +314,8 @@ class FSA(FSM):
                                  currentEdges)
             
                 stack.extend([edge.to for edge in partial if edge.to != current])
-                edges += partial
-        fsa = FSA(start,ends,states,edges).trim()
-
-        return fsa
+                fsa_.edges += partial
+        return fsa_.trim()
     
 class FSAEdge:
     #weights are state the edge comes from, state it goes to, label, and weight

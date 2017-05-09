@@ -20,10 +20,6 @@ class LanguageFrame(Frame):
         self.getLanguage.bind("<Button-1>",self.getLangauge)
         self.getLanguage.grid(row = 0, column = 1)
         
-        self.setLanguage = Button(self.buttonFrame,text = "Set the language from the text box")
-        self.setLanguage.bind("<Button-1>",lambda event: self.insertLanguage(ast.literal_eval(self.languageText.get("1.0",END))))
-        self.setLanguage.grid(row = 0, column = 2)
-        
         self.clearButton = Button(self.buttonFrame,text = "Clear")
         self.clearButton.bind("<Button-1>",self.clear)
         self.clearButton.grid(row = 0, column = 3)
@@ -32,48 +28,63 @@ class LanguageFrame(Frame):
         self.helpButton.bind("<Button-1>",self.help)
         self.helpButton.grid(row = 0, column = 4)
         
+        self.categories = ExpandingListFrame(self,"Categories",["Label","types"],25)
+        self.categories.grid(row = 1, column = 0, columnspan = 2)
+        
+        self.makeStringFrames().grid(row = 1, column = 2)
+        
         self.orderFrame = OrderFrame(self)
-        self.orderFrame.grid(row = 1, column = 2, rowspan = 4)
+        self.orderFrame.grid(row = 1, column = 3)
+        
+        self.changes = ExpandingListFrame(self,"Changes",["Original","Changed"])
+        self.changes.grid(row = 2, column = 0, rowspan = 3)
+        
+        self.codas = ExpandingListFrame(self,"Changes in Codas",["Original","Changed"])
+        self.codas.grid(row = 2, column = 1)
+        
+        self.insertions = ExpandingListFrame(self,"Insertions",["Near:","Insert a:","Where:"],3)
+        self.insertions.grid(row = 2, column = 2, columnspan = 2)
         
         self.phonotacticsFrame = PhonotacticsFrame(self)
-        self.phonotacticsFrame.grid(row = 1, column = 3, rowspan = 4)
+        self.phonotacticsFrame.grid(row = 3, column = 1, columnspan = 3)
         
-        self.categories = ExpandingListFrame(self,"Categories",["Label","types"])
-        self.categories.grid(row = 6, column = 0, columnspan = 2)
-        self.insertions = ExpandingListFrame(self,"Insertions",["Near:","Insert a:","Where:"])
-        self.insertions.grid(row = 5, column = 0, columnspan = 2)
-        self.changes = ExpandingListFrame(self,"Changes",["Original","Changed"])
-        self.changes.grid(row = 5, column = 2)
-        self.codas = ExpandingListFrame(self,"Changes in Codas",["Original","Changed"])
-        self.codas.grid(row = 5, column = 3)
-        self.conjugations = ListFrame(self,"conjugations",ConjugationFrame)
-        self.conjugations.grid(row = 6, column = 3)
         self.assimilations = ListFrame(self,"assimilations",AssimilationFrame)
-        self.assimilations.grid(row = 6, column = 2)
+        self.assimilations.grid(row = 4, column = 1)
         
-        Label(self,text = "Undeletables:").grid(row = 1, column = 0)
-        self.undeletables = Entry(self)
+        self.conjugations = ListFrame(self,"conjugations",ConjugationFrame)
+        self.conjugations.grid(row = 4, column = 2, columnspan = 2)
+        
+        self.openText = Button(self, text = ">>\ntext input")
+        self.openText.bind("<Button-1>",self.openLanguage)
+        self.openText.grid(row=0, column = 4, rowspan = 5)
+        
+        self.languageText = TextInput(self)
+    
+    def makeStringFrames(self):
+        frame = Frame(self)
+        
+        Label(frame,text = "Vowels:").grid(row = 0, column = 0)
+        self.vowels = Entry(frame)
+        self.vowels.grid(row = 0, column = 1)
+        
+        Label(frame,text = "Undeletables:").grid(row = 1, column = 0)
+        self.undeletables = Entry(frame)
         self.undeletables.grid(row = 1, column = 1)
         
-        Label(self,text = "Geminates:").grid(row = 2, column = 0)
-        self.geminates = Entry(self)
+        Label(frame,text = "Geminates:").grid(row = 2, column = 0)
+        self.geminates = Entry(frame)
         self.geminates.grid(row = 2, column = 1)
         
-        Label(self,text = "Vowels:").grid(row = 3, column = 0)
-        self.vowels = Entry(self)
-        self.vowels.grid(row = 3, column = 1)
+        Label(frame,text = "Bad strings:").grid(row = 3, column = 0)
+        self.badstrings = Entry(frame)
+        self.badstrings.grid(row = 3, column = 1)
         
-        Label(self,text = "Bad strings:").grid(row = 4, column = 0)
-        self.badstrings = Entry(self)
-        self.badstrings.grid(row = 4, column = 1)
+        return frame
         
-        self.languageText = Text(self)
-        self.languageText.grid(row = 1, column = 4, rowspan = 6)
     
     def makeLanguage(self):
         dictionary = self.get()
         return controller.makeLanguage(dictionary)
-    
     
     def get(self):
         return {
@@ -92,10 +103,9 @@ class LanguageFrame(Frame):
             }
         
     def getLangauge(self,event):
-        self.languageText.delete('1.0', END)
-        self.languageText.insert('1.0', self.get())
-        
-        
+        self.openLanguage(event)
+        self.languageText.textbox.delete('1.0', END)
+        self.languageText.textbox.insert('1.0', self.get())
 
     def insertLanguage(self, dictionary):
         insertToEntry(self.vowels, " ".join(dictionary["vowels"]))
@@ -120,6 +130,10 @@ class LanguageFrame(Frame):
         file.close()
         
         self.insertLanguage(dictionary)
+        
+    def unfilledNecessaries(self):
+        necessaries = [self.vowels, self.phonotacticsFrame.unstressed]
+        return [n for n in necessaries if n.get() == ""]
         
     def clear(self,event):
         blankLanguage = {
@@ -152,12 +166,16 @@ class LanguageFrame(Frame):
         file.close()
         
         scrollbar.config(command=text.yview)
+        
+    def openLanguage(self,event = None):
+        self.openText.grid_forget()
+        self.languageText.grid(row=0, column = 4, rowspan = 5)
 
 class OrderFrame(Frame):
     def __init__(self,master):
         Frame.__init__(self,master)
         Label(self,text="order").grid(row = 0, column = 0)
-        self.order = Listbox(self, selectmode = SINGLE, heigh = 6)
+        self.order = Listbox(self, selectmode = SINGLE, height = 6, width = 6)
         for (num,item) in enumerate(["bs","chg","del","harm","ins","pen"]):
             self.order.insert(num,item)
         self.order.grid(row = 1, column = 0,rowspan = 6)
@@ -187,6 +205,28 @@ class OrderFrame(Frame):
     def get(self):
         return list(self.order.get(0,6))
 
+class TextInput(Frame):
+    def __init__(self,master):
+        Frame.__init__(self,master)
+        
+        self.closeButton = Button(self,text = "<<")
+        self.closeButton.bind("<Button-1>",self.close)
+        self.closeButton.grid(row = 0, column = 0)
+        
+        self.setButton = Button(self,text="Set the language from the text box")
+        self.setButton.bind("<Button-1>",self.setLanguage)
+        self.setButton.grid(row = 0, column = 1)
+        
+        self.textbox = Text(self)
+        self.textbox.grid(row = 1, column = 0, columnspan = 2)
+        
+    def setLanguage(self,event):
+        language = ast.literal_eval(self.textbox.get("1.0",END))
+        self.master.insertLanguage(language)
+        
+    def close(self,event = None):
+        self.grid_forget()
+        self.master.openText.grid(row=0, column = 4, rowspan = 5)
 
 def insertToEntry(entry,string):
     entry.delete(0,"end")

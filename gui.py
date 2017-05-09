@@ -20,12 +20,16 @@ class Application:
         self.toWordsButton.grid(row = 0)
     
     def toWords(self,event):
-        self.languageFrame.grid_forget()
-        self.wordsFrame.grid(row = 1)
-        self.toWordsButton.grid_forget()
-        self.toLanguageButton.grid(row = 0)
-        self.wordsFrame.language = self.languageFrame.makeLanguage()
-        self.wordsFrame.updateConjugations()
+        if self.languageFrame.unfilledNecessaries() != []:
+            for necessary in self.languageFrame.unfilledNecessaries():
+                necessary.insert(0,"cannot be null")
+        else:
+            self.languageFrame.grid_forget()
+            self.wordsFrame.grid(row = 1)
+            self.toWordsButton.grid_forget()
+            self.toLanguageButton.grid(row = 0)
+            self.wordsFrame.language = self.languageFrame.makeLanguage()
+            self.wordsFrame.updateConjugations()
 
     def makeToggleFrame(self,master):
         frame = Frame(master)

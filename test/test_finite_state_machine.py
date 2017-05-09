@@ -25,7 +25,6 @@ class TestFSTMethods(unittest.TestCase):
             ])
         
         actualFSA = productFST.product(productFSA)
-
         self.assertTrue(actualFSA.equivalent(expectedFSA), "FST product is not working correctly")
         
 class TestFSAMethods(unittest.TestCase):
@@ -200,7 +199,7 @@ class TestFSAMethods(unittest.TestCase):
         
     def test_replace(self):
         innerFSA = FSA('A',['B','C'],['A','B','C'],[
-            FSAEdge('A','B','b',[]),FSAEdge('A','C','c',[]),FSAEdge('B','C','c',[])
+            FSAEdge('A','B','b'),FSAEdge('A','C','c'),FSAEdge('B','C','c')
             ])
         outerFSA = FSA(0,[2,3],[0,1,2,3],[
             FSAEdge(0,1,'a'),FSAEdge(1,2,'d'),FSAEdge(1,3,'e')

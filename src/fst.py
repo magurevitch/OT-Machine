@@ -9,34 +9,27 @@ class FST(FSM):
         return self
         
     def product(self,fsa):
-        fsa.crunchEdges()
-
         start = (self.start, fsa.start)
-        states = []
-        ends = []
+        fsa_ = FSA(start,[],[],[])
         stack = deque([start])
-        edges = []
         
         selfAsFromState = self.stateFrom()
         fsaAsFromState = fsa.stateFrom()
         
         while stack:
             (x,y) = stack.pop()
-            if (x,y) not in states:
-                states += [(x,y)]
+            if (x,y) not in fsa_.states:
+                fsa_.states += [(x,y)]
                 if x in self.ends and y in fsa.ends:
-                    ends += [(x,y)]
-                
-                selfEdges = selfAsFromState[x]
-                fsaEdges = fsaAsFromState[y]
+                    fsa_.ends += [(x,y)]
                 
                 partial = [FSAEdge((x,y),(selfEdge.to, fsaEdge.to),selfEdge.changed,selfEdge.weight + fsaEdge.weight)
-                          for selfEdge in selfEdges
-                          for fsaEdge in [edge for edge in fsaEdges if edge.label == selfEdge.original]
+                          for selfEdge in selfAsFromState[x]
+                          for fsaEdge in [edge for edge in fsaAsFromState[y] if edge.label == selfEdge.original]
                           ]
                 stack.extend([edge.to for edge in partial if edge.to != (x,y)])
-                edges += partial
-        return FSA(start,ends,states,edges).trim()
+                fsa_.edges += partial
+        return fsa_.trim()
     
     def addString(self,frm,to,original,changed,wgt):
         length = max(len(original),len(changed))

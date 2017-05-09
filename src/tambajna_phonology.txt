@@ -4,9 +4,11 @@
                     "F":["p","t","k","n","m","N","f","s","x","r"],
                     "P":["p","t","k","q","b","d","g","T","K"],
                     "S":["f","s","x","Q","r"]},
-    "insertions": {"P":("e","a"),"V":("h","b"),"S":("e","b")},
+    "insertions": {"P":("e","a"),"V":("h","b"),"S":("e","b"),"b":("m","b"),
+                   "d":("n","b"),"g":("N","b"),"W":("N","b")
+    },
     "changes": {"ai":["aj"],"au":["aw"],"ia":["ja"],"ie":["iy"],"iu":["ju"],"ua":["wa"],"ue":["uy"],"ui":["wi"],
-                "ku":["q"],"xu":["Q"],"Nu":["W"],"b":["mb"],"d":["nd"],"g":["Ng"],"W":["NW"]},
+                "ku":["q"],"xu":["Q"],"Nu":["W"]},
     "undeletables": ["q","T","K"],
     "order": ["harm","pen","bs","del","ins","chg"],
     "geminates": ["A","F"],
