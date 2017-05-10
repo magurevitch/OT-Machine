@@ -1,4 +1,4 @@
-from weight import Weight, zeroWeight, infiniteWeight
+from weight import zeroWeight, infiniteWeight
 
 class PriorityQueue:
     def __init__(self,list):

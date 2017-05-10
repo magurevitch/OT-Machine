@@ -51,13 +51,13 @@ class Phonotactics:
     def syllableFSA(self):
         fsa = FSA("I",[],["I"],[])
         if "n" in self.side.lower() or self.placement in [False,0]:
-            fsa.addEdge("I","I",".",[])
+            fsa.addEdge("I","I",".")
             fsa.ends = ["I"]
             return fsa
         fsa.states += ["P","S"]
         if self.foot > 0:
             fsa.addString('P','S',(self.foot+1)*".",[])
-            fsa.addEdge('S','P'+(self.foot+1)*"."+"1",'.',[])
+            fsa.addEdge('S','P'+(self.foot+1)*"."+"1",'.')
         else:
             fsa.states += ["."]
             fsa.ends += ["."]

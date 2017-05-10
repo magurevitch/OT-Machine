@@ -32,7 +32,7 @@ class PhonotacticsFrame(Frame):
         self.unstressed.pack()
         
         Label(self.primaryFrame,text = "Primary stress placement:").grid(row=0,column=0)
-        self.placement = Spinbox(self.primaryFrame,from_=1,to=10, textvar = self.placementVar)
+        self.placement = Spinbox(self.primaryFrame,from_=1,to=10, textvar = self.placementVar, width = 3)
         self.placement.grid(row=1,column=0)
         Label(self.primaryFrame,text = "Syllables between stresses").grid(row=0,column=1)
         Label(self.primaryFrame,text = "Primary Stressed syllable:").grid(row=2,column=0)
@@ -45,11 +45,11 @@ class PhonotacticsFrame(Frame):
         self.secondaryText = Label(self.primaryFrame,text = "Secondary Stressed syllable:")
         self.secondaryStress = Entry(self.primaryFrame)
         
-        self.foot = Spinbox(self.primaryFrame,from_=0,to=10,textvariable=self.footVar)
+        self.foot = Spinbox(self.primaryFrame,from_=0,to=10,textvariable=self.footVar,width = 3)
         self.foot.grid(row=1,column=1)
         
-        Checkbutton(self.primaryFrame,text = "can insert",variable=self.insertVar).grid(row=4,column = 0)
-        Checkbutton(self.primaryFrame,text = "can delete",variable=self.deleteVar).grid(row=4,column = 1)
+        Checkbutton(self.primaryFrame,text = "can insert",variable=self.insertVar).grid(row=0,column = 2)
+        Checkbutton(self.primaryFrame,text = "can delete",variable=self.deleteVar).grid(row=1,column = 2)
         
     def showPrimary(self,*args):
         if self.sideVar.get() == "None":

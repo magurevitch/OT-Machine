@@ -1,4 +1,3 @@
-import time
 import src.controller as controller
 
 file = open("src/tambajna_phonology.txt")

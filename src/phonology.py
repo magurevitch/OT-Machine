@@ -1,6 +1,5 @@
 from weight import Weight
 from fsa import FSA, FSAEdge
-import copy
 from fst import FST, FSTEdge
 
 class Phonology:
@@ -69,12 +68,12 @@ class Phonology:
             for changed in self.changes[original]:
                 fst.addString(0,0,original,changed,["chg"])
         if self.geminate:
-            for edge in copy.deepcopy(fst.edges):
+            for edge in tuple(fst.edges):
                 cats = self.getCategories(edge.changed)
                 if any(map(lambda x: x in self.geminate,cats)):
                     fst.addString(edge.frm,edge.to,edge.original,edge.changed + edge.changed,edge.weight + Weight(["ins"]))
         if self.inserts:
-            for edge in copy.deepcopy(fst.edges):
+            for edge in tuple(fst.edges):
                 cats = self.getCategories(edge.changed)
                 for cat in cats:
                     if cat in self.inserts:
@@ -105,7 +104,7 @@ class Phonology:
     def badString(self,string):
         fsa = FSA("S",["S"],["S"],[])
         fsa.addString("S","S",string,["bs"])
-        for edge in copy.deepcopy(fsa.edges):
+        for edge in tuple(fsa.edges):
             for symb in [sym for sym in self.getSymbols() if sym != edge.label]:
                 fsa.addEdge(edge.frm,"S",symb,[])
         for state in fsa.states:
