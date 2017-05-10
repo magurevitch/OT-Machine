@@ -1,10 +1,9 @@
-from Tkinter import *
+from tkinter import *
 import sys
 sys.path.append('../')
 import src.controller as controller
 from collections import deque
 from threading import Thread
-from Queue import Queue
 import time
 
 class WordsFrame(Frame):
@@ -88,7 +87,7 @@ class WordsFrame(Frame):
         self.leverLabel.pack()
         self.leverLabel.bind("<Button-1>", self.surfaceForms)
         self.leverLabel.bind("<ButtonRelease-1>", self.buttonRelease)
-        self.leverFrames = [PhotoImage(file = "gui/images/lever%d.gif" % i).subsample(9) for i in xrange(5)]
+        self.leverFrames = [PhotoImage(file = "gui/images/lever%d.gif" % i).subsample(9) for i in range(5)]
         self.leverLabel["image"] = self.leverFrames[0]
         
         return frame
@@ -98,7 +97,7 @@ class WordsFrame(Frame):
 
         self.gearsLabel = Label(frame)
         self.gearsLabel.pack()
-        self.gearsFrames = deque([PhotoImage(file = "gui/images/gear%d.gif" % i).subsample(7) for i in xrange(6)])
+        self.gearsFrames = deque([PhotoImage(file = "gui/images/gear%d.gif" % i).subsample(7) for i in range(6)])
         self.gearsLabel["image"] = self.gearsFrames[-1]
         
         self.outputSelection = StringVar()

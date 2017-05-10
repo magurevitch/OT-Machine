@@ -1,10 +1,10 @@
-from Tkinter import *
+from tkinter import *
 import sys
 sys.path.append('../')
 import ast
 import src.controller as controller
-from PhonotacticsFrame import PhonotacticsFrame
-from ExpandingFrames import ExpandingListFrame, ListFrame, ConjugationFrame, AssimilationFrame
+from .PhonotacticsFrame import PhonotacticsFrame
+from .ExpandingFrames import ExpandingListFrame, ListFrame, ConjugationFrame, AssimilationFrame
 
 class LanguageFrame(Frame):
     def __init__(self,master):

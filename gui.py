@@ -1,4 +1,4 @@
-from Tkinter import *
+from tkinter import *
 from gui.WordsFrame import WordsFrame
 from gui.LanguageFrame import LanguageFrame
 

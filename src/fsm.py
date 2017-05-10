@@ -21,15 +21,7 @@ class FSM:
         string += ";\nnode [shape = circle];"                                             
         for edge in self.edges:                                                           
             string += edge.graphviz()                                                     
-        return string + '}'                                                               
-                                                                                          
-    def prettyprint(self):                                                                
-        print "states: ", self.states                                                     
-        print "start: ", self.start                                                       
-        print "ends: ", self.ends                                                         
-        print "edges: "                                                                   
-        for edge in self.edges:                                                           
-            edge.prettyprint()
+        return string + '}'
             
     def replaceState(self,old,new):                                                           
         if self.start == old:                                                                 
@@ -53,7 +45,7 @@ class FSM:
             self.replaceState(old,new)                                              
                                                                                               
     def reverse(self):                                                                        
-        self.capEnd()                                                                         
+        self.capEnd()
         self.start, self.ends = self.ends[0], [self.start]                                    
         for edge in self.edges:                                                               
             edge.reverse()
