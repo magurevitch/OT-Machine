@@ -2,7 +2,7 @@ from Tkinter import *
 from encodings.punycode import insertion_sort
 
 class ExpandingListFrame(Frame):
-    def __init__(self,master,name,columnNames, secondColumnWidth = 10):
+    def __init__(self,master,name,columnNames, secondColumnWidth = 10,notList = False):
         Frame.__init__(self,master)
         
         Label(self,text=name).grid(row=0,columnspan =2)
@@ -21,6 +21,7 @@ class ExpandingListFrame(Frame):
             Label(self,text=self.columns[i]).grid(row=1,column = i)
             
         self.secondColumnWidth = secondColumnWidth
+        self.notList = notList
         
     def addDefault(self,event = None):
         self.expand.grid_forget()
@@ -57,12 +58,18 @@ class ExpandingListFrame(Frame):
         if len(self.columns) == 1:
             return [entry.get() for entry in self.firstColumn]
         if len(self.columns) == 2:
-            return {self.firstColumn[i].get():self.secondColumn[i].get().replace(' ', ',').split(',')
+            return {self.firstColumn[i].get():self.getSecondColumn(i)
                     for i in range(len(self.firstColumn))}
         if len(self.columns) > 2:
             return {self.firstColumn[i].get():
-                    (self.secondColumn[i].get(),self.thirdColumn[i].get())
+                    (self.getSecondColumn(i),self.thirdColumn[i].get())
                     for i in range(len(self.firstColumn))}
+            
+    def getSecondColumn(self,i):
+        if self.notList:
+            return self.secondColumn[i].get()
+        else:
+            return self.secondColumn[i].get().replace(' ', ',').split(',')
             
     def clear(self):
         while self.firstColumn:

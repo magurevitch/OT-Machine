@@ -10,18 +10,18 @@ class TestFSTMethods(unittest.TestCase):
     def test_product(self):
         expectedFSA = FSA(0,[0,2,4],[0,1,2,3,4,5],[
             FSAEdge(0,1,'a'),FSAEdge(1,0,'b'),
-            FSAEdge(1,2,'_',['del']),FSAEdge(0,3,'_',['del']),
-            FSAEdge(2,3,'_',['del']),FSAEdge(3,2,'_',['del']),
+            FSAEdge(1,2,"",['del']),FSAEdge(0,3,"",['del']),
+            FSAEdge(2,3,"",['del']),FSAEdge(3,2,"",['del']),
             FSAEdge(2,5,'c'),FSAEdge(3,4,'d'),
             FSAEdge(4,5,'c'),FSAEdge(5,4,'d')
             ])
         
         productFSA = FSA(0,[0],[0,1],[FSAEdge(0,1,'a'),FSAEdge(1,0,'b')])
         productFST = FST(0,[0,1,2],[0,1,2],[
-            FSTEdge(0,0,'a','a'),FSTEdge(0,1,'a','_',['del']),
-            FSTEdge(1,1,'a','_',['del']),FSTEdge(1,2,'a','c'),FSTEdge(2,2,'a','c'),
-            FSTEdge(0,0,'b','b'),FSTEdge(0,1,'b','_',['del']),
-            FSTEdge(1,1,'b','_',['del']),FSTEdge(1,2,'b','d'),FSTEdge(2,2,'b','d'),
+            FSTEdge(0,0,'a','a'),FSTEdge(0,1,'a',"",['del']),
+            FSTEdge(1,1,'a',"",['del']),FSTEdge(1,2,'a','c'),FSTEdge(2,2,'a','c'),
+            FSTEdge(0,0,'b','b'),FSTEdge(0,1,'b',"",['del']),
+            FSTEdge(1,1,'b',"",['del']),FSTEdge(1,2,'b','d'),FSTEdge(2,2,'b','d'),
             ])
         
         actualFSA = productFST.product(productFSA)
@@ -30,14 +30,14 @@ class TestFSTMethods(unittest.TestCase):
 class TestFSAMethods(unittest.TestCase):
     def test_determinize(self):
         nfsaEdges = [
-            FSAEdge(0,1,'_'),
+            FSAEdge(0,1,""),
             FSAEdge(0,2,'a'),
             FSAEdge(1,0,'a'),
             FSAEdge(2,1,'b'),
-            FSAEdge(2,2,'_'),
-            FSAEdge(2,3,'_'),
+            FSAEdge(2,2,""),
+            FSAEdge(2,3,""),
             FSAEdge(3,3,'b'),
-            FSAEdge(3,4,'_'),
+            FSAEdge(3,4,""),
             FSAEdge(3,5,'b'),
             FSAEdge(4,1,'b'),
             FSAEdge(5,2,'a'),
@@ -84,14 +84,14 @@ class TestFSAMethods(unittest.TestCase):
         
     def test_equivalent(self):
         fsa1Edges =[
-            FSAEdge(0,1,'_'),
+            FSAEdge(0,1,""),
             FSAEdge(0,2,'a'),
             FSAEdge(1,0,'a'),
             FSAEdge(2,1,'b'),
-            FSAEdge(2,2,'_'),
-            FSAEdge(2,3,'_'),
+            FSAEdge(2,2,""),
+            FSAEdge(2,3,""),
             FSAEdge(3,3,'b'),
-            FSAEdge(3,4,'_'),
+            FSAEdge(3,4,""),
             FSAEdge(3,5,'b'),
             FSAEdge(4,1,'b'),
             FSAEdge(5,2,'a'),
@@ -102,16 +102,16 @@ class TestFSAMethods(unittest.TestCase):
         fsa1 = FSA(0,[2],[0,1,2,3,4,5],fsa1Edges)
         
         fsa2Edges = [
-            FSAEdge('A','A','_'),
+            FSAEdge('A','A',""),
             FSAEdge('A','B','a'),
             FSAEdge('B','C','b'),
-            FSAEdge('B','H','_'),
+            FSAEdge('B','H',""),
             FSAEdge('C','B','a'),
             FSAEdge('C','D','b'),
             FSAEdge('C','E','c'),
             FSAEdge('D','B','a'),
             FSAEdge('D','E','c'),
-            FSAEdge('D','G','_'),
+            FSAEdge('D','G',""),
             FSAEdge('E','E','c'),
             FSAEdge('E','F','a'),
             FSAEdge('E','F','b'),
@@ -144,20 +144,20 @@ class TestFSAMethods(unittest.TestCase):
         
     def test_product_simple(self):
         fsa1 = FSA(0,[1],[0,1],[FSAEdge(0,1,'a'),FSAEdge(1,0,'b'),
-                                FSAEdge(0,0,'_'),FSAEdge(1,1,'_')])
+                                FSAEdge(0,0,""),FSAEdge(1,1,"")])
         fsa2 = FSA(0,[3],[0,1,2,3],[])
         for num in range(3):
             for symbol in ['a','b','c']:
                 fsa2.addEdge(num,num+1,symbol,[])
-            fsa2.addEdge(num,num+1,'_',['del'])
+            fsa2.addEdge(num,num+1,"",['del'])
         actualFSA = fsa1.product(fsa2)
         symmetricFSA = fsa2.product(fsa1)
         
         expectedFSA = FSA(0,[5],[0,1,2,3,4,5],[
-            FSAEdge(0,1,'a'),FSAEdge(0,2,'_',['del']),
-            FSAEdge(1,3,'_',['del']),FSAEdge(1,4,'b'),
-            FSAEdge(2,3,'a'),FSAEdge(2,4,'_',['del']),
-            FSAEdge(4,5,'a'),FSAEdge(3,5,'_',['del'])
+            FSAEdge(0,1,'a'),FSAEdge(0,2,"",['del']),
+            FSAEdge(1,3,"",['del']),FSAEdge(1,4,'b'),
+            FSAEdge(2,3,'a'),FSAEdge(2,4,"",['del']),
+            FSAEdge(4,5,'a'),FSAEdge(3,5,"",['del'])
             ])
         
         self.assertTrue(actualFSA.equivalent(expectedFSA),"simple product is not working")
@@ -166,32 +166,32 @@ class TestFSAMethods(unittest.TestCase):
         
     def test_product_blanks(self):
         fsa1 = FSA(0,[2],[0,1,2],[
-            FSAEdge(0,1,'_',['pen']),
+            FSAEdge(0,1,"",['pen']),
             FSAEdge(0,2,'b'),
             FSAEdge(1,2,'a'),
             FSAEdge(1,2,'c',['ins'])
             ])
         fsa2 = FSA(0,[2],[0,1,2],[
-            FSAEdge(0,1,'_',['del']),
+            FSAEdge(0,1,"",['del']),
             FSAEdge(0,2,'a'),
             FSAEdge(1,2,'b'),
             FSAEdge(1,2,'c',['ins'])
             ])
         for num in range(3):
-            fsa1.addEdge(num,num,'_')
-            fsa2.addEdge(num,num,'_')
+            fsa1.addEdge(num,num,"")
+            fsa2.addEdge(num,num,"")
         
         actualFSA = fsa1.product(fsa2)
         symmetricFSA = fsa2.product(fsa1)
         
         expectedFSA = FSA(0,[4],[0,1,2,3,4],[
-            FSAEdge(0,1,'_',['del']),FSAEdge(0,2,'_',['pen']),
-            FSAEdge(2,3,'_',['del']),FSAEdge(1,3,'_',['pen']),
+            FSAEdge(0,1,"",['del']),FSAEdge(0,2,"",['pen']),
+            FSAEdge(2,3,"",['del']),FSAEdge(1,3,"",['pen']),
             FSAEdge(1,4,'b'),FSAEdge(2,4,'a'),
             FSAEdge(3,4,'c',['ins','ins'])
             ])
         for num in range(5):
-            expectedFSA.addEdge(num,num,'_')
+            expectedFSA.addEdge(num,num,"")
         
         self.assertTrue(actualFSA.equivalent(expectedFSA),"blanks product is not working")
         self.assertTrue(actualFSA.equivalent(symmetricFSA),"FSA product is not symmetrical")
@@ -231,9 +231,9 @@ class TestFSAMethods(unittest.TestCase):
         
     def test_from_regex(self):
         expectedFSA = FSA(0,[5],[0,1,2,3,4,5],[
-            FSAEdge(0,1,'A'),FSAEdge(0,1,'B'),FSAEdge(0,1,'_'),
-            FSAEdge(1,2,'C'),FSAEdge(1,2,'_',['pen']),
-            FSAEdge(0,3,'D',['pen']),FSAEdge(0,3,'_'),
+            FSAEdge(0,1,'A'),FSAEdge(0,1,'B'),FSAEdge(0,1,""),
+            FSAEdge(1,2,'C'),FSAEdge(1,2,"",['pen']),
+            FSAEdge(0,3,'D',['pen']),FSAEdge(0,3,""),
             FSAEdge(3,4,'E'),FSAEdge(4,2,'F',['pen']),
             FSAEdge(2,5,'G')
             ])

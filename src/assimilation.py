@@ -26,7 +26,7 @@ class Assimilation:
         harmonics = self.getHarmonics(symbols)
         return symbols - harmonics
         
-    def harmonyFSA(self,symbols):
+    def harmonyFSA(self,symbols,traces):
         fsa = FSA("Neutral",["Neutral"],["Neutral"],[])
         
         harmonics = self.getHarmonics(symbols)
@@ -42,14 +42,17 @@ class Assimilation:
                     edge.weight = Weight(["harm"]) if self.dissimilation and edge.to != edge.frm else zeroWeight
         for state in fsa.states:
             if state != "Neutral":
-                fsa.addEdge("Neutral",state,state,[])
+                fsa.addEdge("Neutral",state,state)
             
         for state in fsa.states:
-            fsa.addEdge(state,state,".",[])
-            fsa.addEdge(state,state,"_",[])
+            fsa.addEdge(state,state,".")
+            for trace in traces:
+                fsa.addEdge(state,state,trace)
+            fsa.addEdge(state,state,"'")
+            fsa.addEdge(state,state,",")
             for neut in self.getNeutrals(symbols):
                 if self.opaques == False or neut in self.opaques:
-                    fsa.addEdge(state,"Neutral",neut,[])
+                    fsa.addEdge(state,"Neutral",neut)
                 else:
-                    fsa.addEdge(state,state,neut,[])
+                    fsa.addEdge(state,state,neut)
         return fsa

@@ -60,7 +60,7 @@ def toXML(entry):
         return "<entry>\n" + helperToXML(entry,1) + "</entry>\n"
 
 def makeLanguage(dictionary):
-    try:
+    if dictionary:
         dictPhonotax = dictionary["phonotactics"]
         phonotactics = Phonotactics(
             dictPhonotax["side"],dictPhonotax["placement"],dictPhonotax["foot"],
@@ -72,16 +72,16 @@ def makeLanguage(dictionary):
             dictPhonotax['can delete']
             )
         harmonies = [Assimilation(entry["lists"],entry["tier"],entry["dissimilation"]) for entry in dictionary["harmonies"]]
-    
+
         phonology = Phonology(
             dictionary["categories"],dictionary["insertions"],dictionary["changes"],
             dictionary["undeletables"],phonotactics,dictionary["order"],
             dictionary["geminates"],dictionary["codas"],dictionary["vowels"],
-            harmonies,dictionary["bad strings"]
+            harmonies,dictionary["bad strings"],dictionary["traces"],dictionary["tambajna finish"]
             )
     
         return Language(phonology,dictionary["conjugations"])
-    except:
+    else:
         return Language(False,False)
 
 toForm = {

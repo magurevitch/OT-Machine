@@ -26,7 +26,7 @@ class FSA(FSM):
                 partial = [FSAEdge((x,y),(selfEdge.to, fsaEdge.to),selfEdge.label,selfEdge.weight + fsaEdge.weight)
                           for selfEdge in selfAsFromState[x]
                           for fsaEdge in [edge for edge in fsaAsFromState[y] if edge.label == selfEdge.label]
-                          if selfEdge.label != '_' or zeroWeight in [selfEdge.weight,fsaEdge.weight]
+                          if selfEdge.label or zeroWeight in [selfEdge.weight,fsaEdge.weight]
                           ]
                 stack.extend([edge.to for edge in partial if edge.to != (x,y)])
                 fsa_.edges += partial
@@ -81,13 +81,14 @@ class FSA(FSM):
         if len(self.ends) > 1:
             self.states += ["END"]
             for end in self.ends:
-                self.edges += [FSAEdge(end,"END","_")]
+                self.edges += [FSAEdge(end,"END","")]
             self.ends = ["END"]
         
-    def addBlanks(self):
+    def addBlanks(self,traces):
+        print "blanks"
         for state in self.states:
-            if all([edge.label != "_" for edge in self.edges if edge.frm == state]):
-                self.addEdge(state,state,"_")
+            if all([edge.label for edge in self.edges if edge.frm == state]):
+                self.addEdge(state,state,"")
         
     def crunchEdges(self):
         scoreBoard = {}
@@ -130,7 +131,7 @@ class FSA(FSM):
         
         for edge in self.edges:
             label = (edge.label,edge.weight)
-            if label == ("_",zeroWeight):
+            if label == ("",zeroWeight):
                 epsilon_closures[edge.frm] = epsilon_closures.get(edge.frm,[]) + [edge.to]
             else:
                 if edge.frm not in state_transitions:
@@ -208,8 +209,8 @@ class FSA(FSM):
         start = 0
         ends = [len(string)]
         states = range(len(string)+1)
-        edges = [FSAEdge(i,i+1,string[i],[]) for i in range(len(string))]
-        edges += [FSAEdge(i,i,"_",[]) for i in states]
+        edges = [FSAEdge(i,i+1,string[i]) for i in range(len(string))]
+        edges += [FSAEdge(i,i,"") for i in states]
         return cls(start,ends,states,edges)
 
     @classmethod
@@ -228,9 +229,9 @@ class FSA(FSM):
                 fsa.quotient([end,start])
             elif string[0] in '([{':
                 if string[0] == '(':
-                    fsa.edges += [FSAEdge(start,open,'_',[''])]
+                    fsa.edges += [FSAEdge(start,open,"")]
                 elif string[0] == '{':
-                    fsa.edges += [FSAEdge(start,open,'_',['pen'])]
+                    fsa.edges += [FSAEdge(start,open,"",['pen'])]
                 branches = []
                 remainder = ""
                 state = 0
@@ -263,12 +264,12 @@ class FSA(FSM):
                 else:
                     fsa.quotient([end,open])
             elif len(string) == 1:
-                fsa.edges += [FSAEdge(start,end,string,[])]
+                fsa.edges += [FSAEdge(start,end,string)]
                 if open not in fsa.states:
                     fsa.states += [open]
             elif string[0] == '*':
                 fsa.edges += [FSAEdge(start,open,string[1],['pen'])]
-                fsa.edges += [FSAEdge(start,open,'_',[])]
+                fsa.edges += [FSAEdge(start,open,"")]
                 if open not in fsa.states:
                     fsa.states += [open]
                 ThompsonRecurse(open,end,string[2:])
@@ -309,7 +310,7 @@ class FSA(FSM):
                                  [FSAEdge(current,x.to +(y.to,),x.label,x.weight+y.weight)
                                   for x in xs
                                   for y in [edge for edge in ys if x.label == edge.label]
-                                  if x.label != '_' or zeroWeight in [x.weight,y.weight]
+                                  if x.label or zeroWeight in [x.weight,y.weight]
                                   ], 
                                  currentEdges)
             
