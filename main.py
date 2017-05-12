@@ -24,10 +24,12 @@ elif text == "harmony":
     dictionary["codas"] = {'m':['n'], 'n':['m'], 't':['p', 'k'], 'p':['t'], 'k':['t']}
     dictionary["vowels"] = ['V']
     dictionary["harmonies"] = [
-        {"tier":False,"lists":[['p','m'],['n','t'],['k']]},
-        {"tier":[],"lists":[['u','i'],['a']]}
+        {"tier":False,"lists":[['p','m'],['n','t'],['k']],"dissimilation":False},
+        {"tier":[],"lists":[['u','i'],['a']],"dissimilation":False}
         ]
-    dictionary["bad strings"] = False
+    dictionary["bad strings"] = []
+    dictionary["traces"] = {}
+    dictionary["tambajna finish"] = False
     dictionary["conjugations"] = {}
 else:
     print "write next to go onto the next step"
@@ -50,6 +52,13 @@ else:
         dictionary["changes"][new[0]] = new[1].replace(" ","").split(',')
         text = raw_input("more? ")
     dictionary["undeletables"] = raw_input("now phonemes that can't be deleted ")
+    print "What traces are left behind by deleting a sound or category of sounds?"
+    dictionary["traces"] = {}
+    text = raw_input("insert as symbol:trace, with next to continue")
+    while text != "next":
+        new = text.strip().replace(" ","").split(':')
+        dictionary["traces"][new[0]] = new[1]
+        text = raw_input("more? ")
     print "order of (pen)alty, (del)eltion, (ins)ertion, (ch)an(g)e, (harm)ony, and (b)ad (s)tring"
     dictionary["order"] = raw_input("like pen,del,ins,chg,harm ").strip().replace(" ","").split(',')
     dictionary["geminates"] = raw_input("what symbols or categories can be geminated across syllable boundaries to fix things? ")
@@ -123,6 +132,7 @@ else:
         else:
             harmdict["lists"] += [list(text)]
         text = raw_input("next to skip, or type in an assimilation class ")
+    dictionary["tambajna finish"] = False
     print "now put in the conjugations"
     dictionary["conjugations"] = {}
     while text != "next":

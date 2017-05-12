@@ -9,8 +9,8 @@ class Phonotactics:
         self.placement = placement
         self.foot = foot
         self.usphon = usphon
-        self.psphon = psphon
-        self.ssphon = ssphon
+        self.psphon = addBefore(psphon,"'")
+        self.ssphon = addBefore(ssphon if ssphon else psphon,",")
         self.bephon = bephon
         self.canInsert = canInsert
         self.canDelete = canDelete
@@ -94,7 +94,7 @@ class Phonotactics:
             fsa.ends = [state for state in fsa.states if "I" not in state]
         for edge in fsa.edges:
             if edge.frm == "I":
-                edge.label = "_"
+                edge.label = ""
         if "r" in self.side or "R" in self.side:
             fsa.reverse()
         return fsa
@@ -113,8 +113,13 @@ class Phonotactics:
                 elif "B" in state:
                     fsa.replace(state,self.bephon)
                 elif "S" in state:
-                    if self.ssphon:
-                        fsa.replace(state,self.ssphon)
-                    else:
-                        fsa.replace(state,self.psphon)
-        return fsa
+                    fsa.replace(state,self.ssphon)
+        return fsa.crunchEdges()
+    
+    
+def addBefore(fsa,symb):
+    if isinstance(fsa,FSA):
+        fsa.addEdge("new",fsa.start,symb)
+        fsa.states += ["new"]
+        fsa.start = "new"
+    return fsa

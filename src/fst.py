@@ -33,11 +33,11 @@ class FST(FSM):
     
     def addString(self,frm,to,original,changed,wgt):
         length = max(len(original),len(changed))
-        original = original.ljust(length,'_')
-        changed = changed.ljust(length, '_')
+        nuOriginal = list(original) + max(length-len(original),0) * [""] 
+        nuChanged = list(changed) + max(length-len(changed),0) * [""] 
         temp = [str(frm) + original + changed + str(i) for i in range(1,length)]
         self.states += temp
-        temp = zip([frm]+temp,temp+[to],original,changed)
+        temp = zip([frm]+temp,temp+[to],nuOriginal,nuChanged)
         for (frm_,to_,original,changed) in temp:
             if to_ == to:
                 self.addEdge(frm_,to_,original,changed,wgt)

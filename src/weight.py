@@ -11,6 +11,8 @@ class Weight(tuple):
         return super(Weight, cls).__new__(cls,tuple(counter[item] for item in cls.order))
         
     def __add__(self,other):
+        if other == zeroWeight:
+            return self
         return Weight(tuple(s+o for (s,o) in zip(self,other)),True)
         
     def __repr__(self):

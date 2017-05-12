@@ -36,14 +36,17 @@ class LanguageFrame(Frame):
         self.orderFrame = OrderFrame(self)
         self.orderFrame.grid(row = 1, column = 3)
         
-        self.changes = ExpandingListFrame(self,"Changes",["Original","Changed"])
-        self.changes.grid(row = 2, column = 0, rowspan = 3)
+        self.traces = ExpandingListFrame(self,"Traces",["sound:","Trace:"],3,True)
+        self.traces.grid(row = 2, column = 0)
         
         self.codas = ExpandingListFrame(self,"Changes in Codas",["Original","Changed"])
         self.codas.grid(row = 2, column = 1)
         
-        self.insertions = ExpandingListFrame(self,"Insertions",["Near:","Insert a:","Where:"],3)
+        self.insertions = ExpandingListFrame(self,"Insertions",["Near:","Insert a:","Where:"],3,True)
         self.insertions.grid(row = 2, column = 2, columnspan = 2)
+        
+        self.changes = ExpandingListFrame(self,"Changes",["Original","Changed"])
+        self.changes.grid(row = 3, column = 0, rowspan = 2)
         
         self.phonotacticsFrame = PhonotacticsFrame(self)
         self.phonotacticsFrame.grid(row = 3, column = 1, columnspan = 3)
@@ -79,6 +82,10 @@ class LanguageFrame(Frame):
         self.badstrings = Entry(frame)
         self.badstrings.grid(row = 3, column = 1)
         
+        self.tambajnaFinish = IntVar()
+        self.tambajnaFinish.set(0)
+        Checkbutton(frame,text = "Tambajna-like tone", variable = self.tambajnaFinish).grid(row=4,columnspan=2)
+        
         return frame
         
     
@@ -99,7 +106,9 @@ class LanguageFrame(Frame):
             "geminates": self.geminates.get().replace(' ', ',').split(','),
             "vowels": self.vowels.get().replace(' ', ',').split(','),
             "bad strings": self.badstrings.get().replace(' ', ',').split(',') if self.badstrings.get() else False,
-            "order": self.orderFrame.get()
+            "order": self.orderFrame.get(),
+            "traces": self.traces.get(),
+            "tambajna finish": self.tambajnaFinish.get()
             }
         
     def getLangauge(self,event):
@@ -112,12 +121,14 @@ class LanguageFrame(Frame):
         insertToEntry(self.geminates, " ".join(dictionary["geminates"]))
         insertToEntry(self.undeletables, " ".join(dictionary["undeletables"]) if dictionary["undeletables"] else "")
         insertToEntry(self.badstrings, " ".join(dictionary["bad strings"]) if dictionary["bad strings"] else "")
+        self.tambajnaFinish.set(dictionary["tambajna finish"])
         self.orderFrame.order.delete(0, 6)
         for num, item in enumerate(dictionary["order"]):
             self.orderFrame.order.insert(num, item)
         
         self.phonotacticsFrame.insert(dictionary["phonotactics"])
         self.categories.insert(dictionary["categories"])
+        self.traces.insert(dictionary["traces"])
         self.insertions.insert(dictionary["insertions"])
         self.changes.insert(dictionary["changes"])
         self.codas.insert(dictionary["codas"])
@@ -148,6 +159,8 @@ class LanguageFrame(Frame):
             "vowels": [],
             "harmonies": [],
             "bad strings": [],
+            "traces": {},
+            "tambajna finish":False,
             "conjugations": {}
             }
         self.insertLanguage(blankLanguage)

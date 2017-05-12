@@ -8,10 +8,9 @@ class PriorityQueue:
         
     def percolateUp(self,i):
         p = parent(i)
-        if p:
-            if self.list[i].weight < self.list[p].weight:
-                self.list[i], self.list[p] = self.list[p], self.list[i]
-                self.percolateUp(p)
+        if p and self.list[i].weight < self.list[p].weight:
+            self.list[i], self.list[p] = self.list[p], self.list[i]
+            self.percolateUp(p)
                     
     def percolateDown(self,i):
         l = leftChild(i)
@@ -34,8 +33,7 @@ class PriorityQueue:
         return returner
         
     def update(self,label,weight,paths):
-        (i, element) = next(((i,item) for (i,item) in enumerate(self.list[1:]) if item.label == label))
-        i += 1
+        (i, element) = next(((i+1,item) for (i,item) in enumerate(self.list[1:]) if item.label == label))
         element.weight = weight
         element.paths = paths
         if parent(i):
@@ -69,5 +67,6 @@ def parent(index):
         
 def leftChild(index):
     return index * 2     
+
 def rightChild(index):
     return index*2 + 1

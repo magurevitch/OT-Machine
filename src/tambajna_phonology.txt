@@ -3,7 +3,9 @@
                     "A":["w","y","j"],"V":["a","e","i","u"],
                     "F":["p","t","k","n","m","N","f","s","x","r"],
                     "P":["p","t","k","q","b","d","g","T","K"],
-                    "S":["f","s","x","Q","r"]},
+                    "S":["f","s","x","Q","r"],
+                    "H":["p","t","k","q","T","K","f","s","x","Q","r"],
+                    "L":["b","d","g","n","m","N","W"]},
     "insertions": {"P":("e","a"),"V":("h","b"),"S":("e","b"),"b":("m","b"),
                    "d":("n","b"),"g":("N","b"),"W":("N","b")
     },
@@ -38,6 +40,8 @@
         "dissimilation": False
     }],
     "bad strings": ["rer","rar","rur","rir"],
+    "traces": {"L":"L", "H":"H"},
+    "tambajna finish":True,
     "conjugations": {
                 "N":
                     [

@@ -24,16 +24,19 @@ class TestAssimilationMethods(unittest.TestCase):
         ]
         expectedFSA = FSA('Neutral',states,states,edges)
         for state in states:
-            expectedFSA.addEdge(state,'Neutral','a',[])
-            expectedFSA.addEdge(state,state,'_',[])
-            expectedFSA.addEdge(state,state,'.',[])
+            expectedFSA.addEdge(state,'Neutral','a')
+            expectedFSA.addEdge(state,state,"")
+            expectedFSA.addEdge(state,state,'.')
+            expectedFSA.addEdge(state,state,',')
+            expectedFSA.addEdge(state,state,"'")
+            expectedFSA.addEdge(state,state,"H")
             if state != 'Neutral':
                 expectedFSA.addEdge('Neutral',state,state,[])
                 expectedFSA.addEdge(state,state,state,[])
         localHarmony = Assimilation([['m','p'],['n','t']],False)
         
         symbols = set(['m','p','n','t','a'])
-        actualFSA = localHarmony.harmonyFSA(symbols)
+        actualFSA = localHarmony.harmonyFSA(symbols,["","H"])
         
         self.assertEqual(actualFSA, expectedFSA, "local harmony is not functioning correctly")
         
@@ -56,15 +59,18 @@ class TestAssimilationMethods(unittest.TestCase):
         expectedFSA = FSA('Neutral',states,states,edges)
         for state in states:
             expectedFSA.addEdge(state,state,'a')
-            expectedFSA.addEdge(state,state,'_')
+            expectedFSA.addEdge(state,state,"")
             expectedFSA.addEdge(state,state,'.')
+            expectedFSA.addEdge(state,state,',')
+            expectedFSA.addEdge(state,state,"'")
+            expectedFSA.addEdge(state,state,"H")
             if state != 'Neutral':
                 expectedFSA.addEdge('Neutral',state,state,[])
                 expectedFSA.addEdge(state,state,state,[])
         transparentHarmony = Assimilation([['i','u'],['e','o']],[])
         
         symbols = set(['a','e','i','o','u'])
-        actualFSA = transparentHarmony.harmonyFSA(symbols)
+        actualFSA = transparentHarmony.harmonyFSA(symbols,["","H"])
         
         self.assertEqual(actualFSA, expectedFSA, "tiered harmony with only transparents is not functioning correctly")
         
@@ -88,15 +94,18 @@ class TestAssimilationMethods(unittest.TestCase):
         for state in states:
             expectedFSA.addEdge(state,'Neutral','a')
             expectedFSA.addEdge(state,state,'y')
-            expectedFSA.addEdge(state,state,'_')
+            expectedFSA.addEdge(state,state,"")
             expectedFSA.addEdge(state,state,'.')
+            expectedFSA.addEdge(state,state,',')
+            expectedFSA.addEdge(state,state,"'")
+            expectedFSA.addEdge(state,state,"H")
             if state != 'Neutral':
                 expectedFSA.addEdge('Neutral',state,state)
                 expectedFSA.addEdge(state,state,state)
         opaqueHarmony = Assimilation([['i','u'],['e','o']],['a'])
         
         symbols = set(['a','e','i','o','u','y'])
-        actualFSA = opaqueHarmony.harmonyFSA(symbols)
+        actualFSA = opaqueHarmony.harmonyFSA(symbols,["","H"])
         
         self.assertEqual(actualFSA, expectedFSA, "tiered harmony with opaques is not functioning correctly")
         
@@ -112,16 +121,19 @@ class TestAssimilationMethods(unittest.TestCase):
         ]
         expectedFSA = FSA('Neutral',states,states,edges)
         for state in states:
-            expectedFSA.addEdge(state,'Neutral','a',[])
-            expectedFSA.addEdge(state,state,'_',[])
-            expectedFSA.addEdge(state,state,'.',[])
+            expectedFSA.addEdge(state,'Neutral','a')
+            expectedFSA.addEdge(state,state,"")
+            expectedFSA.addEdge(state,state,'.')
+            expectedFSA.addEdge(state,state,',')
+            expectedFSA.addEdge(state,state,"'")
+            expectedFSA.addEdge(state,state,"H")
             if state != 'Neutral':
-                expectedFSA.addEdge('Neutral',state,state,[])
-                expectedFSA.addEdge(state,state,state,[])
+                expectedFSA.addEdge('Neutral',state,state)
+                expectedFSA.addEdge(state,state,state)
         localHarmony = Assimilation([['t','d']],False,True)
         
         symbols = set(['t','d','a'])
-        actualFSA = localHarmony.harmonyFSA(symbols)
+        actualFSA = localHarmony.harmonyFSA(symbols,["","H"])
         
         self.assertEqual(actualFSA, expectedFSA, "local dissimilation is not functioning correctly")
         
@@ -139,14 +151,17 @@ class TestAssimilationMethods(unittest.TestCase):
         for state in states:
             expectedFSA.addEdge(state,'Neutral','s')
             expectedFSA.addEdge(state,state,'a')
-            expectedFSA.addEdge(state,state,'_')
+            expectedFSA.addEdge(state,state,"")
             expectedFSA.addEdge(state,state,'.')
+            expectedFSA.addEdge(state,state,',')
+            expectedFSA.addEdge(state,state,"'")
+            expectedFSA.addEdge(state,state,"H")
             if state != 'Neutral':
                 expectedFSA.addEdge('Neutral',state,state)
                 expectedFSA.addEdge(state,state,state)
         opaqueHarmony = Assimilation([['t','d']],['s'],True)
         
         symbols = set(['t','d','a','s'])
-        actualFSA = opaqueHarmony.harmonyFSA(symbols)
+        actualFSA = opaqueHarmony.harmonyFSA(symbols,["","H"])
         
         self.assertEqual(actualFSA, expectedFSA, "tiered dissimilation with opaques is not functioning correctly")
