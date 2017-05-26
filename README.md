@@ -37,7 +37,7 @@ Both main files allow you to either input an underlying form, or a name of a con
   * lists is a field that contains each harmonic group. If a sound is in multiple groups, then write it in all of them. If a sound is opaque to long distance harmony, then put it in the opaques list, and if it is transparent to harmony, then don't put it in any lists. If the harmony is short distance, put in opaques as "False"
   * tier is a field that is null if the harmony doesn't occur on a separate tier, and lists all symbols in that tier if it is
   * harmony FSA creates an FSA that accepts a given harmony system
- * PriorityQueue.py makes a priority queue, using a heap, that Dijktra uses
+ * PriorityQueue.py makes a priority queue, using a heap, that Dijkstra uses
  * PQElement.py are the elements of the priority queue
  * Weight.py is the class that holds the weights.  
   This version of OT thinks that a language has a specific order it puts the different constraints in ('harm' are problems with harmony 'pen' are phonological penalties, 'bs' indicates a bad string, 'del' is for deletion, 'ins' is for insertion, and 'chg' is for when one symbol changes into another)
