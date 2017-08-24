@@ -1,7 +1,8 @@
-from weight import Weight, zeroWeight, infiniteWeight
-from priority_queue import PriorityQueue
-from fsm import FSM
+from .weight import Weight, zeroWeight, infiniteWeight
+from .priority_queue import PriorityQueue
+from .fsm import FSM
 from collections import deque
+import functools
 
 class FSA(FSM):    
     def addEdge(self,frm,to,label,weight=zeroWeight):
@@ -84,19 +85,13 @@ class FSA(FSM):
                 self.edges += [FSAEdge(end,"END","")]
             self.ends = ["END"]
         
-    def addBlanks(self,traces):
-        print "blanks"
-        for state in self.states:
-            if all([edge.label for edge in self.edges if edge.frm == state]):
-                self.addEdge(state,state,"")
-        
     def crunchEdges(self):
         scoreBoard = {}
         for edge in self.edges:
             key = (edge.frm,edge.to,edge.label)
             if key not in scoreBoard or edge.weight < scoreBoard[key]:
                 scoreBoard[key] = edge.weight
-        self.edges = [FSAEdge(frm,to,label,val) for ((frm,to,label),val) in scoreBoard.iteritems()]
+        self.edges = [FSAEdge(frm,to,label,val) for ((frm,to,label),val) in scoreBoard.items()]
         return self
             
     def dijkstra(self):
@@ -162,7 +157,7 @@ class FSA(FSM):
                     for state in toStates[label]:
                         if state in epsilon_closures:
                             newState += [s for s in epsilon_closures[state] if s not in newState]
-                    newState = tuple(set(sorted(newState)))
+                    newState = tuple(set(sorted(newState,key=str)))
                     if newState not in fsa.states:
                         stack.append(newState)
                     fsa.addEdge(current, newState, label[0], label[1])
@@ -175,8 +170,8 @@ class FSA(FSM):
         fsa = self.determinize()
         fsb = other.determinize()
         
-        aFrom = {state : {(e.label,e.weight):e.to for e in edges} for (state,edges) in fsa.stateFrom().iteritems()}
-        bFrom = {state : {(e.label,e.weight):e.to for e in edges} for (state,edges) in fsb.stateFrom().iteritems()}
+        aFrom = {state : {(e.label,e.weight):e.to for e in edges} for (state,edges) in fsa.stateFrom().items()}
+        bFrom = {state : {(e.label,e.weight):e.to for e in edges} for (state,edges) in fsb.stateFrom().items()}
         
         stack = [fsa.start]
         bijection = {fsa.start : fsb.start}
@@ -194,7 +189,7 @@ class FSA(FSM):
                 else:
                     bijection[aStateDict[label]] = bStateDict[label]
                     stack += [aStateDict[label]]
-        return sorted([bijection[end] for end in fsa.ends]) == sorted(fsb.ends)
+        return sorted([bijection[end] for end in fsa.ends],key = str) == sorted(fsb.ends,key = str)
     
     def minimize(self):
         self = self.determinize()
@@ -292,21 +287,21 @@ class FSA(FSM):
         return fsa
     
     def multiproduct(self,fsas):
+        fsas = list(fsas)
         start = (self.start,) + tuple(fsa.start for fsa in fsas)
         fsa_ = FSA(start,[],[],[])
         stack = deque([start])
     
         statesFrom = (self.stateFrom(True),) + tuple(fsa.stateFrom() for fsa in fsas)
-        
         while stack:
             current = stack.pop()
             if current not in fsa_.states:
                 fsa_.states += [current]
+                fsas = list(fsas)
                 if all([x in fsa.ends for (x, fsa) in zip(current,[self] + fsas)]):
                     fsa_.ends += [current]
                 currentEdges = [sf[x] for (x, sf) in zip(current,statesFrom)]
-            
-                partial = reduce(lambda xs,ys:
+                partial = functools.reduce(lambda xs,ys:
                                  [FSAEdge(current,x.to +(y.to,),x.label,x.weight+y.weight)
                                   for x in xs
                                   for y in [edge for edge in ys if x.label == edge.label]
@@ -328,12 +323,6 @@ class FSAEdge:
             self.weight = weight
         else:
             self.weight = Weight(weight)
-        
-    def prettyprint(self):
-        if self.weight == zeroWeight:
-            print "(" + str(self.frm) + "," + str(self.to) + "::" + str(self.label) + ")"
-        else:
-            print "(" + str(self.frm) + "," + str(self.to) + "::" + str(self.label) + "//" + str(self.weight) + ")"
             
     def graphviz(self):
         def graphvizstate(state):
@@ -353,6 +342,9 @@ class FSAEdge:
     
     def tuple(self):
         return FSAEdge(self.frm,(self.to,),self.label,self.weight)
+    
+    def __repr__(self):
+        return "(" + str(self.frm) + "->" + str(self.to) + "//" + str(self.label) + "," + str(self.weight) + ")"
         
     def __hash__(self):
         return hash((self.frm, self.to,self.label,str(self.weight)))

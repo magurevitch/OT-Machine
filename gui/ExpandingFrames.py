@@ -1,5 +1,4 @@
-from Tkinter import *
-from encodings.punycode import insertion_sort
+from tkinter import *
 
 class ExpandingListFrame(Frame):
     def __init__(self,master,name,columnNames, secondColumnWidth = 10,notList = False):
@@ -33,7 +32,7 @@ class ExpandingListFrame(Frame):
             self.thirdColumn[-1].set("b")
             self.buttons += [Radiobutton(self,text = "before",variable=self.thirdColumn[-1],value="b")]
             self.buttons += [Radiobutton(self,text = "after",variable=self.thirdColumn[-1],value="a")]
-        for number in xrange(len(self.firstColumn)):
+        for number in range(len(self.firstColumn)):
             self.firstColumn[number].grid(row=number+2,column=0)
             if len(self.columns) > 1:
                 self.secondColumn[number].grid(row=number+2,column=1)

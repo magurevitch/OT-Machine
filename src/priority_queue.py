@@ -1,9 +1,9 @@
-from weight import zeroWeight, infiniteWeight
+from .weight import zeroWeight, infiniteWeight
 
 class PriorityQueue:
     def __init__(self,list):
         self.list = [False] + [PQElement(item) for item in list]
-        for i in xrange(len(list) - 1, 0, -1):
+        for i in range(len(list) - 1, 0, -1):
             self.percolateDown(i)
         
     def percolateUp(self,i):
@@ -49,9 +49,6 @@ class PriorityQueue:
     
     def __contains__(self,key):
         return key in [item.label for item in self.list[1:]]
-            
-    def prettyprint(self):
-        print [(item.label,item.weight,item.paths) for item in self.list[1:]]
 
 class PQElement(object):
     __slots__ = ['label', 'weight', 'paths']
@@ -62,7 +59,7 @@ class PQElement(object):
         self.paths = paths
         
 def parent(index):
-    index /= 2
+    index //= 2
     return index if index > 0 else False
         
 def leftChild(index):

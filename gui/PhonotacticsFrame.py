@@ -1,4 +1,4 @@
-from Tkinter import *
+from tkinter import *
 
 class PhonotacticsFrame(Frame):
     def __init__(self,master):

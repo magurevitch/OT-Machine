@@ -1,6 +1,6 @@
-from fsa import FSA, FSAEdge
-from fsm import FSM
-from weight import Weight, zeroWeight
+from .fsa import FSA, FSAEdge
+from .fsm import FSM
+from .weight import Weight, zeroWeight
 from collections import deque
 
 class FST(FSM):    
@@ -59,12 +59,6 @@ class FSTEdge:
             self.weight = weight
         else:
             self.weight = Weight(weight)
-        
-    def prettyprint(self):
-        if self.weight == zeroWeight:
-            print "(" + str(self.frm) + "," + str(self.to) + "::" + str(self.original) + " > " + str(self.changed) + ")"
-        else:
-            print "(" + str(self.frm) + "," + str(self.to) + "::" + str(self.original) + " > " + str(self.changed) + "//" + str(self.weight) + ")"
             
     def graphviz(self):
         def graphvizstate(state):

@@ -1,7 +1,7 @@
-from weight import Weight
-from fsa import FSA, FSAEdge
-from fst import FST, FSTEdge
-from tambajna_finish import finish
+from .weight import Weight
+from .fsa import FSA, FSAEdge
+from .fst import FST, FSTEdge
+from .tambajna_finish import finish
 
 class Phonology:
     #fields: what categories of sounds do you have, what sounds can be inserted, what changes might happen to a string, what sounds cannot be deleted
@@ -28,32 +28,6 @@ class Phonology:
             self.cachedPhonotax = self.categorizeFsa(self.phonotax.phonotacticFSA())
         self.cachedCodas = self.codasFST()
         self.cachedBad = self.badStrings()
-        
-    def prettyprint(self):
-        print "The categories are:"
-        for (cat,reps) in self.categories.iteritems():
-            print cat + ": " + '/' + "/,/".join(reps) + '/'
-        print "You can instert a:"
-        for (cat,ins) in self.inserts.iteritems():
-            if "a" in ins[1]:
-                print "/" + ins[0] + "/ after a " + cat
-            else:
-                print "/" + ins[0] + "/ before a " + cat
-        print "you can change:"
-        for (bef,af) in self.changes.iteritems():
-            print '/' + bef + "/ -> /" + "/,/".join(af) + '/'
-        print "after", self.vowels, "you can change:"
-        for (bef,af) in self.codas.iteritems():
-            print '/' + bef + "/ -> /" + "/,/".join(af) + '/'
-        print "You can't delete:" + ",".join(self.undel)
-        print "you can save syllables by geminating: " + ",".join(self.geminate)
-        self.phonotax.prettyprint()
-        if self.harmonies:
-            print "harmonies and assimilations are"
-            for harmony in self.harmonies:
-                harmony.prettyprint()
-        if self.badstrings:
-            print "The bad strings are " + ','.join(self.badstrings)
 
     def getCategories(self, symbol):
         categories = [cat for cat in self.categories if symbol in self.categories[cat]]
@@ -159,7 +133,7 @@ class Phonology:
         
         symbols = set(edge.label for edge in fsa.edges) - set([".","'",","]+self.getTraces())
         
-        fsa = fsa.multiproduct(map(lambda x: x.harmonyFSA(symbols,self.getTraces()), self.harmonies) + [self.cachedBad])
+        fsa = fsa.multiproduct(list(map(lambda x: x.harmonyFSA(symbols,self.getTraces()), self.harmonies)) + [self.cachedBad])
         
         return fsa
 
@@ -196,7 +170,7 @@ class Phonology:
         return set([item for list in self.categories.values() for item in list])
     
     def getTraces(self):
-        return [""] + self.traces.values()
+        return [""] + list(self.traces.values())
         
 def overlap(A,B):
     for i in range(1,min(len(A),len(B))):

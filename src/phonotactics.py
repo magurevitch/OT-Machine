@@ -1,4 +1,4 @@
-from fsa import FSA, FSAEdge
+from .fsa import FSA, FSAEdge
 
 class Phonotactics:
     #fields: which side the stress counts from, where the placement of the primary stress is
@@ -15,39 +15,6 @@ class Phonotactics:
         self.canInsert = canInsert
         self.canDelete = canDelete
     
-    def prettyprint(self):
-        string = "This language has "
-        if 'r' in self.side.lower() and self.placement != False:
-            string += " primary stress on syllable " + str(self.placement) + " from the right."
-        elif 'l' in self.side.lower() and self.placement != False:
-            string += " primary stress on syllable " + str(self.placement)+ " from the left."
-        else:
-            print string + "no stress features"
-            self.usphon.prettyprint()
-            return
-        if self.foot != 0 and self.foot != False:
-            string += " There are " + str(self.foot) + " unstressed syllables between stresses."
-        print string
-        if self.psphon:
-            print "Primary stressed syllables are"
-            self.psphon.prettyprint()
-        if self.ssphon:
-            print "Secondary stressed syllables are"
-            self.ssphon.prettyprint()
-        if self.bephon:
-            if 'r' in self.side.lower():
-                print "The first syllable is"
-            else:
-                print "The last syllable is"
-            self.bephon.prettyprint()
-        if self.usphon:
-            print "Unstressed syllables are"
-            self.usphon.prettyprint()
-        if self.canInsert:
-            print "You can insert an unstressed syllable with a penalty"
-        if self.canDelete:
-            print "You can delete an unstressed syllable with a penalty"
-            
     def syllableFSA(self):
         fsa = FSA("I",[],["I"],[])
         if "n" in self.side.lower() or self.placement in [False,0]:

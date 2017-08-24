@@ -1,8 +1,8 @@
-from language import Language
-from phonotactics import Phonotactics
-from assimilation import Assimilation
-from fsa import FSA
-from phonology import Phonology
+from .language import Language
+from .phonotactics import Phonotactics
+from .assimilation import Assimilation
+from .fsa import FSA
+from .phonology import Phonology
 
 def toString(entry):
     string = ""
