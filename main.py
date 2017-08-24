@@ -54,11 +54,11 @@ else:
     dictionary["undeletables"] = input("now phonemes that can't be deleted ")
     print("What traces are left behind by deleting a sound or category of sounds?")
     dictionary["traces"] = {}
-    text = raw_input("insert as symbol:trace, with next to continue ")
+    text = input("insert as symbol:trace, with next to continue ")
     while text != "next":
         new = text.strip().replace(" ","").split(':')
         dictionary["traces"][new[0]] = new[1]
-        text = raw_input("more? ")
+        text = input("more? ")
     print("order of (pen)alty, (del)eltion, (ins)ertion, (ch)an(g)e, (harm)ony, and (b)ad (s)tring")
     dictionary["order"] = input("like pen,del,ins,chg,harm,bs ").strip().replace(" ","").split(',')
     dictionary["geminates"] = input("what symbols or categories can be geminated across syllable boundaries to fix things? ")
@@ -131,14 +131,9 @@ else:
             harmdict = {"lists":[],"tier":False}
         else:
             harmdict["lists"] += [list(text)]
-<<<<<<< HEAD
-        text = raw_input("next to skip, or type in an assimilation class ")
-    dictionary["tambajna finish"] = False
-    print "now put in the conjugations"
-=======
         text = input("next to skip, or type in an assimilation class ")
+    dictionary["tambajna finish"] = False
     print("now put in the conjugations")
->>>>>>> forward ported it to python3
     dictionary["conjugations"] = {}
     while text != "next":
         names = input("insert names of conjugations, split by commas ").replace(" ","").split(",")

@@ -85,12 +85,6 @@ class FSA(FSM):
                 self.edges += [FSAEdge(end,"END","")]
             self.ends = ["END"]
         
-    def addBlanks(self,traces):
-        print "blanks"
-        for state in self.states:
-            if all([edge.label for edge in self.edges if edge.frm == state]):
-                self.addEdge(state,state,"")
-        
     def crunchEdges(self):
         scoreBoard = {}
         for edge in self.edges:

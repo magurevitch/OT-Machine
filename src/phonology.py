@@ -170,7 +170,7 @@ class Phonology:
         return set([item for list in self.categories.values() for item in list])
     
     def getTraces(self):
-        return [""] + self.traces.values()
+        return [""] + list(self.traces.values())
         
 def overlap(A,B):
     for i in range(1,min(len(A),len(B))):
