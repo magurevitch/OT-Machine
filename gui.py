@@ -1,6 +1,6 @@
 from tkinter import *
-from gui.WordsFrame import WordsFrame
-from gui.LanguageFrame import LanguageFrame
+from src.gui.WordsFrame import WordsFrame
+from src.gui.LanguageFrame import LanguageFrame
 
 root = Tk()
 

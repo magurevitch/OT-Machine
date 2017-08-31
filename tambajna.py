@@ -1,7 +1,8 @@
 import src.controller as controller
+import json
 
-file = open("src/tambajna_phonology.txt")
-language = controller.makeLanguage(eval(file.read()))
+file = open("static/tambajna_phonology.txt")
+language = controller.makeLanguage(json.loads(file.read()))
 file.close()
 
 print("put in an underlying form to see a surface form, . to finish ")

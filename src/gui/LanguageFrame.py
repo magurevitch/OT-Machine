@@ -1,7 +1,7 @@
 from tkinter import *
 import sys
+import json
 sys.path.append('../')
-import ast
 import src.controller as controller
 from .PhonotacticsFrame import PhonotacticsFrame
 from .ExpandingFrames import ExpandingListFrame, ListFrame, ConjugationFrame, AssimilationFrame
@@ -114,7 +114,8 @@ class LanguageFrame(Frame):
     def getLangauge(self,event):
         self.openLanguage(event)
         self.languageText.textbox.delete('1.0', END)
-        self.languageText.textbox.insert('1.0', self.get())
+        language = json.dumps(self.get())
+        self.languageText.textbox.insert('1.0', language)
 
     def insertLanguage(self, dictionary):
         insertToEntry(self.vowels, " ".join(dictionary["vowels"]))
@@ -136,8 +137,8 @@ class LanguageFrame(Frame):
         self.conjugations.insert(dictionary["conjugations"])
 
     def insertTambajna(self,event):
-        file = open("./src/tambajna_phonology.txt","r")
-        dictionary = ast.literal_eval(file.read())
+        file = open("./static/tambajna_phonology.txt","r")
+        dictionary = json.loads(file.read())
         file.close()
         
         self.insertLanguage(dictionary)
@@ -234,7 +235,7 @@ class TextInput(Frame):
         self.textbox.grid(row = 1, column = 0, columnspan = 2)
         
     def setLanguage(self,event):
-        language = ast.literal_eval(self.textbox.get("1.0",END))
+        language = json.loads(self.textbox.get("1.0",END))
         self.master.insertLanguage(language)
         
     def close(self,event = None):

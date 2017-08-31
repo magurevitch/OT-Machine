@@ -61,7 +61,7 @@ class ExpandingListFrame(Frame):
                     for i in range(len(self.firstColumn))}
         if len(self.columns) > 2:
             return {self.firstColumn[i].get():
-                    (self.getSecondColumn(i),self.thirdColumn[i].get())
+                    [self.getSecondColumn(i),self.thirdColumn[i].get()]
                     for i in range(len(self.firstColumn))}
             
     def getSecondColumn(self,i):
@@ -183,7 +183,7 @@ class ConjugationFrame(ExpandingListFrame):
         self.name.grid(row=0,column=1)
         
     def get(self):
-        return [(self.firstColumn[i].get(),self.secondColumn[i].get())
+        return [[self.firstColumn[i].get(),self.secondColumn[i].get()]
                     for i in range(len(self.firstColumn))]
         
     def insert(self, dictionary):
