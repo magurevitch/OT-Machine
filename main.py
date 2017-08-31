@@ -1,4 +1,5 @@
 import src.controller as controller
+import json
 
 dictionary = {}
 
@@ -8,8 +9,8 @@ print("if you want my conlang, write 'Tambajna' and 'harmony' gives a langauge t
 print("if you want your own lang, please use one syllable per phoneme, no _ or .")
 text = input("and your categories as symbol : phonemes in that category, one at a time ")
 if text == "tambajna":
-    file = open("src/tambajna_phonology.txt")
-    dictionary = eval(file.read())
+    file = open("static/tambajna_phonology.txt")
+    dictionary = json.loads(file.read())
     file.close()
 elif text == "harmony":
     dictionary["categories"] = {'C':['p', 't', 'k', 'n', 'm'], 'V':['a', 'e', 'i', 'u']}

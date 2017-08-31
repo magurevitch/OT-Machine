@@ -6,8 +6,8 @@
                     "S":["f","s","x","Q","r"],
                     "H":["p","t","k","q","T","K","f","s","x","Q","r"],
                     "L":["b","d","g","n","m","N","W"]},
-    "insertions": {"P":("e","a"),"V":("h","b"),"S":("e","b"),"b":("m","b"),
-                   "d":("n","b"),"g":("N","b"),"W":("N","b")
+    "insertions": {"P":["e","a"],"V":["h","b"],"S":["e","b"],"b":["m","b"],
+                   "d":["n","b"],"g":["N","b"],"W":["N","b"]
     },
     "changes": {"ai":["aj"],"au":["aw"],"ia":["ja"],"ie":["iy"],"iu":["ju"],"ua":["wa"],"ue":["uy"],"ui":["wi"],
                 "ku":["q"],"xu":["Q"],"Nu":["W"]},
@@ -22,8 +22,8 @@
                 "primary stress":"[C[[AV|VA]*F|V{F}]|AV{F|A}]",
                 "secondary stress": "[(C)AV|CV(A)]",
                 "bad edge": "",
-                "can insert": False,
-                "can delete": False
+                "can insert": false,
+                "can delete": false
     },
     "codas": {"m":["n"],"n":["m","N"],"N":["n"]},
     "vowels": ["V"],
@@ -36,23 +36,23 @@
                  ["r","N","g"],
                  ["r","N","W","k","q","x","Q","K"],
                  ["r","p","t","k","q","T","K","s","f","x","Q"]],
-        "tier":False,
-        "dissimilation": False
+        "tier":false,
+        "dissimilation": false
     }],
     "bad strings": ["rer","rar","rur","rir"],
     "traces": {"L":"L", "H":"H"},
-    "tambajna finish":True,
+    "tambajna finish":true,
     "conjugations": {
                 "N":
                     [
-                        ("Null","_"),
-                        ("Abs","_a"),
-                        ("Erg","_ru"),
-                        ("Gen","_t"),
-                        ("SL","_bi"),
-                        ("DL","_KiW"),
-                        ("Dat","_usa"),
-                        ("Adj","_fe")
+                        ["Null","_"],
+                        ["Abs","_a"],
+                        ["Erg","_ru"],
+                        ["Gen","_t"],
+                        ["SL","_bi"],
+                        ["DL","_KiW"],
+                        ["Dat","_usa"],
+                        ["Adj","_fe"]
                     ]
                 }
 }

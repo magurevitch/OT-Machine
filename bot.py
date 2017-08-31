@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import src.controller as controller
-from src.discord_keys import * 
+from static.discord_keys import * 
 
 description = "Tambajna Optimality Theory"
 bot_prefix = "!"
