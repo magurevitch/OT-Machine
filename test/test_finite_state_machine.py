@@ -26,6 +26,36 @@ class TestFSTMethods(unittest.TestCase):
         
         actualFSA = productFST.product(productFSA)
         self.assertTrue(actualFSA.equivalent(expectedFSA), "FST product is not working correctly")
+    
+    def testSequentialMultiproduct(self):
+        fst1 = FST(0,[1],[0,1],[
+            FSTEdge(0,0,"a","a"),
+            FSTEdge(0,1,"a","b")
+            ])
+        
+        fst2 = FST(0,[1],[0,1],[
+            FSTEdge(0,1,"a","z"),
+            FSTEdge(0,1,"b","c")
+            ])
+        
+        fst3 = FST(0,[1],[0,1],[
+            FSTEdge(0,1,"z","y"),
+            FSTEdge(0,1,"c","c"),
+            FSTEdge(0,1,"c","d")
+                   ])
+        
+        expectedFst = FST((0,0,0),[(1,1,1)],[(0,0,0),(1,1,1),(0,1,1)],
+                          [FSTEdge((0,0,0),(0,1,1),"a","y"),
+                           FSTEdge((0,0,0),(1,1,1),"a","c"),
+                           FSTEdge((0,0,0),(1,1,1),"a","d")
+                           ])
+                           
+        actualFST = fst1.sequentialMultiproduct([fst2,fst3])
+        
+        self.assertEqual(actualFST.start,expectedFst.start,"fst sequential multiproduct not doing starts")
+        self.assertEqual(actualFST.ends,expectedFst.ends,"fst sequential multiproduct not doing ends")
+        self.assertEqual(actualFST.states,expectedFst.states,"fst sequential multiproduct not doing states")
+        self.assertEqual(set(actualFST.edges),set(expectedFst.edges),"fst sequential multiproduct not doing edges")
         
 class TestFSAMethods(unittest.TestCase):
     def test_determinize(self):

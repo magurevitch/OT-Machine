@@ -81,6 +81,7 @@ class Phonotactics:
                     fsa.replace(state,self.bephon)
                 elif "S" in state:
                     fsa.replace(state,self.ssphon)
+        fsa.relabelStates()
         return fsa.crunchEdges()
     
     

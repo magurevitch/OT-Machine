@@ -2,11 +2,16 @@ from .fsa import FSA, FSAEdge
 from .fsm import FSM
 from .weight import Weight, zeroWeight
 from collections import deque
+import functools
 
-class FST(FSM):    
-    def addEdge(self,frm,to,original,changed,weight=zeroWeight):
-        self.edges += [FSTEdge(frm,to,original,changed,weight)]
-        return self
+class FST(FSM):
+    def addEdge(self,frm,to,original,changed,weight=zeroWeight,replacements={}):
+        if original in replacements and original == changed:
+            self.edges += [FSTEdge(frm,to,symbol,symbol,weight) for symbol in replacements[original] if FSTEdge(frm,to,symbol,symbol,weight) not in self.edges]
+        else:
+            edge = FSTEdge(frm,to,original,changed,weight)
+            if edge not in self.edges:
+                self.edges += [edge]
         
     def product(self,fsa):
         start = (self.start, fsa.start)
@@ -31,7 +36,7 @@ class FST(FSM):
                 fsa_.edges += partial
         return fsa_.trim()
     
-    def addString(self,frm,to,original,changed,wgt):
+    def addString(self,frm,to,original,changed,wgt=zeroWeight,replacements={}):
         length = max(len(original),len(changed))
         nuOriginal = list(original) + max(length-len(original),0) * [""] 
         nuChanged = list(changed) + max(length-len(changed),0) * [""] 
@@ -40,10 +45,35 @@ class FST(FSM):
         temp = zip([frm]+temp,temp+[to],nuOriginal,nuChanged)
         for (frm_,to_,original,changed) in temp:
             if to_ == to:
-                self.addEdge(frm_,to_,original,changed,wgt)
+                self.addEdge(frm_,to_,original,changed,wgt,replacements)
             else:
-                self.addEdge(frm_,to_,original,changed,[])
+                self.addEdge(frm_,to_,original,changed,[],replacements)
         return self
+    
+    def sequentialMultiproduct(self,fsts):
+        fsts = list(fsts)
+        start = (self.start,) + tuple(fst.start for fst in fsts)
+        fst_ = FST(start,[],[],[])
+        stack = deque([start])
+    
+        statesFrom = (self.stateFrom(True),) + tuple(fst.stateFrom() for fst in fsts)
+        while stack:
+            current = stack.pop()
+            if current not in fst_.states:
+                fst_.states += [current]
+                if all([x in fst.ends for (x, fst) in zip(current,[self] + fsts)]):
+                    fst_.ends += [current]
+                currentEdges = [sf[x] for (x, sf) in zip(current,statesFrom)]
+                partial = functools.reduce(lambda xs,ys:
+                                 [FSTEdge(current,x.to +(y.to,),x.original,y.changed,x.weight+y.weight)
+                                  for x in xs
+                                  for y in [edge for edge in ys if x.changed == edge.original]
+                                  if x.changed or zeroWeight in [x.weight,y.weight]
+                                  ],
+                                 currentEdges)
+                stack.extend([edge.to for edge in partial if edge.to != current])
+                fst_.edges += list(set(edge for edge in partial if edge not in fst_.edges))
+        return fst_
             
     @classmethod
     def selfLooping(cls,symbols):
@@ -77,10 +107,13 @@ class FSTEdge:
         self.to = new if self.to == old else self.to
         
     def tuple(self):
-        return FSAEdge(self.frm,(self.to,),self.original,self.changed,self.weight)
+        return FSTEdge(self.frm,(self.to,),self.original,self.changed,self.weight)
         
     def __hash__(self):
         return hash((self.frm, self.to,self.original,self.changed,str(self.weight)))
 
     def __eq__(self, other):
-        return (self.frm, self.to,self.original,self.changed,self.weight) == (other.frm, other.to,other.original,other.changed,other.weight)   
+        return (self.frm, self.to,self.original,self.changed,self.weight) == (other.frm, other.to,other.original,other.changed,other.weight)
+    
+    def __repr__(self):
+        return "(" + str(self.frm) + "->" + str(self.to) + "//" + str(self.original) + " > " + str(self.changed) + "," + str(self.weight) + ")"

@@ -1,9 +1,11 @@
+from collections import deque
+
 class FSM:
     #fields: starting state, ending states, list of all states, and list of edges 
     def __init__(self,start,ends,states,edges):                                   
         self.start = start                                                        
         self.ends = ends                                                          
-        self.states = states                                                      
+        self.states = states                                            
         self.edges = edges                          
         
     #This is a print function for a graph if you want to use graphviz to visualize it     
@@ -19,7 +21,7 @@ class FSM:
         for state in self.ends:                                                           
             string += " " + graphvizstate(state)                                          
         string += ";\nnode [shape = circle];"                                             
-        for edge in self.edges:                                                           
+        for edge in self.edges:
             string += edge.graphviz()                                                     
         return string + '}'
             
@@ -49,6 +51,21 @@ class FSM:
         self.start, self.ends = self.ends[0], [self.start]                                    
         for edge in self.edges:                                                               
             edge.reverse()
+            
+    def trim(self):
+        stack = deque()
+        stack.append(set(self.ends))
+        goodStates = set(self.ends + [self.start])
+                
+        while stack:
+            now = stack.pop()
+            states = set(edge.frm for edge in self.edges if edge.to in now and edge.frm not in goodStates)
+            if states:
+                stack.append(states)
+            goodStates |= states
+        self.states = list(goodStates)
+        self.edges = [edge for edge in self.edges if edge.to in goodStates]
+        return self
 
     def stateFrom(self,tup=False):
         if tup:

@@ -63,21 +63,6 @@ class FSA(FSM):
                 self.addEdge(frm_,to_,label)
         return self
         
-    def trim(self):
-        stack = deque()
-        stack.append(set(self.ends))
-        goodStates = set(self.ends + [self.start])
-                
-        while stack:
-            now = stack.pop()
-            states = set(edge.frm for edge in self.edges if edge.to in now and edge.frm not in goodStates)
-            if states:
-                stack.append(states)
-            goodStates |= states
-        self.states = list(goodStates)
-        self.edges = [edge for edge in self.edges if edge.to in goodStates]
-        return self
-        
     def capEnd(self):        
         if len(self.ends) > 1:
             self.states += ["END"]
@@ -113,11 +98,12 @@ class FSA(FSM):
                 if edge.to in queue:
                     newWeight = current.weight + edge.weight
                     queueWeight = queue.getWeight(edge.to)
-                    if newWeight <= queueWeight:
+                    if newWeight < queueWeight:
                         paths = [path + edge.label for path in current.paths]
-                        if newWeight == queueWeight:
-                            paths += queue.getPaths(edge.to)
                         queue.update(edge.to,newWeight,paths)
+                    elif newWeight == queueWeight:
+                        paths = [path + edge.label for path in current.paths]
+                        queue.addToPaths(edge.to,paths)
         return False
     
     def determinize(self):
@@ -132,20 +118,13 @@ class FSA(FSM):
                 if edge.frm not in state_transitions:
                     state_transitions[edge.frm] = {}
                 state_transitions[edge.frm][label] = state_transitions[edge.frm].get(label,[]) + [edge.to]
-        for closure in epsilon_closures:
-            for state in epsilon_closures[closure]:
-                if state in epsilon_closures:
-                    epsilon_closures[closure] += [s for s in epsilon_closures[state] if s not in epsilon_closures[closure]]
-        startlist = [self.start]
-        if self.start in epsilon_closures:
-            startlist += epsilon_closures[self.start]
-        start = tuple(set(startlist))
+
+        start = tuple(set([self.start] + epsilon_closures.get(self.start,[])))
         fsa = FSA(start,[],[],[])
         stack = deque([start])
-        empty = []
         while stack:
             current = stack.pop()
-            if current not in fsa.states and current != ():
+            if current not in fsa.states + [()]:
                 toStates = {}
                 for state in current:
                     if state in state_transitions:
@@ -154,15 +133,15 @@ class FSA(FSM):
                 fsa.states += [current]
                 for label in toStates:
                     newState = toStates[label]
-                    for state in toStates[label]:
+                    for state in newState:
                         if state in epsilon_closures:
                             newState += [s for s in epsilon_closures[state] if s not in newState]
                     newState = tuple(set(sorted(newState,key=str)))
                     if newState not in fsa.states:
                         stack.append(newState)
                     fsa.addEdge(current, newState, label[0], label[1])
-                    if any([state in self.ends for state in newState]):
-                        if newState not in fsa.ends:
+                    if newState not in fsa.ends:
+                        if [0 for state in newState if state in self.ends]:
                             fsa.ends += [newState]
         return fsa
     
@@ -314,7 +293,6 @@ class FSA(FSM):
         return fsa_.trim()
     
 class FSAEdge:
-    #weights are state the edge comes from, state it goes to, label, and weight
     def __init__(self,frm,to,label,weight=zeroWeight):
         self.frm = frm
         self.to = to

@@ -8,7 +8,7 @@ class PriorityQueue:
         
     def percolateUp(self,i):
         p = parent(i)
-        if p and self.list[i].weight < self.list[p].weight:
+        if p > 0 and self.list[i].weight < self.list[p].weight:
             self.list[i], self.list[p] = self.list[p], self.list[i]
             self.percolateUp(p)
                     
@@ -40,6 +40,10 @@ class PriorityQueue:
             self.percolateUp(i)
         if leftChild(i) < len(self.list):
             self.percolateDown(i)
+            
+    def addToPaths(self,label,paths):
+        element = next((item for item in self.list[1:] if item.label == label))
+        element.paths += paths
             
     def getWeight(self,label):
         return next((item.weight for item in self.list[1:] if item.label == label),False)
