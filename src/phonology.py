@@ -32,39 +32,55 @@ class Phonology:
     def getCategories(self, symbol):
         categories = [cat for cat in self.categories if symbol in self.categories[cat]]
         return categories + [symbol]
-
+    
     def modificationFST(self):
-        fst = FST.selfLooping(list(self.getSymbols()) + [""])
+        delete = FST.selfLooping(list(self.getSymbols()) + [""])
         if self.undel:
-            for sym in list(self.getSymbols()) + [""]:
+            for sym in list(self.getSymbols()):
                 cats = self.getCategories(sym)
                 if all(map(lambda x: x not in self.undel,cats)):
                     traces = [FSTEdge(0,0,sym,trace,["del"]) for trace in self.traces if trace in cats]
-                    fst.edges += traces
+                    delete.edges += traces
                     if not(traces):
-                        fst.addEdge(0,0,sym,"",["del"])
+                        delete.addEdge(0,0,sym,"",["del"])
+                        
+        changes = FST.selfLooping(list(self.getSymbols()) + [""] + self.getTraces())
         for original in self.changes:
             for changed in self.changes[original]:
-                fst.addString(0,0,original,changed,["chg"])
-        if self.geminate:
-            for edge in tuple(fst.edges):
-                cats = self.getCategories(edge.changed)
-                if any(map(lambda x: x in self.geminate,cats)):
-                    fst.addString(edge.frm,edge.to,edge.original,edge.changed + edge.changed,edge.weight + Weight(["ins"]))
-        if self.inserts:
-            for edge in tuple(fst.edges):
-                cats = self.getCategories(edge.changed)
-                for cat in cats:
-                    if cat in self.inserts:
-                        (symb,side) = self.inserts[cat]
-                        string = ""
-                        if "b" in side and edge.frm == 0:
-                            string = symb + edge.changed
-                        if "a" in side and edge.to == 0:
-                            string = edge.changed + symb
-                        if string:
-                            fst.addString(edge.frm,edge.to,edge.original,string,edge.weight + Weight(["ins"]))
+                changes.addString(0,0,original,changed,["chg"])
+        for state in changes.states:
+            changes.addEdge(state,state,'','')
+                    
+        inserts = FST.selfLooping(list(self.getSymbols()) + [""] + self.getTraces())
+        for (context,[insert,placement]) in self.inserts.items():
+            inserts.states += ["b"+context,"a"+context]
+            inserts.addString("b"+context,"a"+context,context,context,[],self.categories)
+            if "b" in placement:
+                inserts.addEdge(0,"b"+context,"",insert,["ins"])
+                inserts.quotient([0,"a"+context])
+            else:
+                inserts.addEdge("a"+context,0,"",insert,["ins"])
+                inserts.quotient([0,"b"+context])
+        for state in inserts.states:
+            inserts.addEdge(state,state,'','')
+                
+        geminates = FST.selfLooping(list(self.getSymbols()) + [""] + self.getTraces())
+        for geminate in self.geminate:
+            geminates.addString(0,0,geminate,geminate*2,["ins"],self.categories)
+            if geminate in self.categories:
+                for symbol in self.categories[geminate]:
+                    geminates.addString(0,0,symbol,symbol*2,["ins"])
+            else:
+                geminates.addString(0,0,geminate,geminate*2,["ins"])
+        for state in geminates.states:
+            geminates.addEdge(state,state,'','')
+        
+        fst = delete.sequentialMultiproduct([inserts,changes,geminates]).trim()
+        fst.edges = [edge for edge in fst.edges if edge.frm == fst.start or edge.weight != Weight(['del'])]
+        fst.relabelStates()
+        
         return fst
+                
         
     def codasFST(self):
         fst = FST("B",["A","E"],["B","A","E"],[])
@@ -109,6 +125,7 @@ class Phonology:
         for state in fsa.states:
             for trace in self.getTraces():
                 fsa.addEdge(state,state,trace)
+        fsa.relabelStates()
         return fsa
     
     # This generates the list of all surface forms that fit phonotactics, as a list of syllables, and list of penalties
