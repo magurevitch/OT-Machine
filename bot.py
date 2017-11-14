@@ -2,12 +2,13 @@ import discord
 from discord.ext import commands
 import src.controller as controller
 from static.discord_keys import * 
+import json
 
 description = "Tambajna Optimality Theory"
 bot_prefix = "!"
 
-file = open("src/tambajna_phonology.txt")
-language = controller.makeLanguage(eval(file.read()))
+file = open("static/tambajna_phonology.txt")
+language = controller.makeLanguage(json.loads(file.read()))
 
 client = commands.Bot(description=description,command_prefix=bot_prefix)
 
