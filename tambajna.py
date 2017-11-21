@@ -18,11 +18,12 @@ while text != ".":
         output = 'String'
     elif "x" in flags:
         output = 'XML'
+    orthography = "typing" if "t" in flags else False
     genFunction = language.entry
     if conj in language.conjugations:
-        genFunction = lambda entry: language.conjugate(conj,entry)
+        genFunction = lambda entry,orthography,removeProsody: language.conjugate(conj,entry,orthography,removeProsody)
         words = words[1:]
     for word in words:
-        entry = genFunction(word)
+        entry = genFunction(word,orthography,'r' in flags)
         print(controller.toForm[output](entry))
     text = input("underlying ")
