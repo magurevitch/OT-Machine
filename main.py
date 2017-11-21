@@ -146,6 +146,7 @@ language = controller.makeLanguage(dictionary)
 
 print("put in an underlying form to see a surface form, . to finish ")
 print("use flag -s to show a short string, -x to output xml, and default is a verbose string")
+print("use flag -r to remove prosody")
 text = input("underlying ")
 while text != ".":
     words = text.strip().replace(" ",",").split(',')
@@ -157,11 +158,11 @@ while text != ".":
         output = 'String'
     elif "x" in flags:
         output = 'XML'
-    genFunction = language.entry
+    genFunction = lambda entry,removeProsody: language.entry(entry,removeProsody=removeProsody)
     if conj in language.conjugations:
-        genFunction = lambda entry: language.conjugate(conj,entry)
+        genFunction = lambda entry,removeProsody: language.conjugate(conj,entry,removeProsody=removeProsody)
         words = words[1:]
     for word in words:
-        entry = genFunction(word)
+        entry = genFunction(word,'r' in flags)
         print(controller.toForm[output](entry))
     text = input("underlying ")

@@ -3,6 +3,7 @@ from .phonotactics import Phonotactics
 from .assimilation import Assimilation
 from .fsa import FSA
 from .phonology import Phonology
+from .orthography import Orthography
 
 def toString(entry):
     string = ""
@@ -45,12 +46,12 @@ def toVerboseString(entry):
 def toXML(entry):
     def helperToXML(entry, indent):
         indentSpaces = indent * " "
-        if isinstance(entry, list):
+        if isinstance(entry, (list,map)):
             between = "</form>\n" + indentSpaces + "<form>"
             return indentSpaces + "<form>" + between.join(entry) + "</form>\n"
         elif isinstance(entry, dict):
             string = ""
-            for (key,value) in entry.iteritems():
+            for (key,value) in entry.items():
                 string += indentSpaces + "<" + key + ">\n" + helperToXML(value, indent + 1) + indentSpaces + "</" + key + ">\n"
             return string
         return indentSpaces + str(entry) + "\n"
@@ -79,8 +80,13 @@ def makeLanguage(dictionary):
             dictionary["geminates"],dictionary["codas"],dictionary["vowels"],
             harmonies,dictionary["bad strings"],dictionary["traces"],dictionary["tambajna finish"]
             )
+        
+        if "orthographies" in dictionary:
+            orthographies = {name:Orthography(ortho) for (name,ortho) in dictionary["orthographies"].items()}
+        else:
+            orthographies = False
     
-        return Language(phonology,dictionary["conjugations"])
+        return Language(phonology,dictionary["conjugations"],orthographies)
     else:
         return Language(False,False)
 
