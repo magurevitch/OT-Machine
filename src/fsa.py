@@ -8,6 +8,10 @@ class FSA(FSM):
     def addEdge(self,frm,to,label,weight=zeroWeight):
         self.edges += [FSAEdge(frm,to,label,weight)]
         return self
+    
+    def addEdges(self,edges):
+        for edge in edges:
+            self.addEdge(*edge)
         
     def product(self,fsa):
         start = (self.start, fsa.start)
@@ -144,6 +148,25 @@ class FSA(FSM):
                         if [0 for state in newState if state in self.ends]:
                             fsa.ends += [newState]
         return fsa
+    
+    def traverse(self):
+        stack = deque([self.start])
+        statesFrom = self.stateFrom()
+        scoreboard = {state:set() for state in self.states}
+        scoreboard[self.start] = set([""])
+        antiloop = {state:set() for state in self.states}
+        
+        while stack:
+            current = stack.pop()
+            for edge in statesFrom[current]:
+                if(edge.to not in antiloop[edge.frm]):
+                    scoreboard[edge.to].update([string + edge.label for string in scoreboard[edge.frm]])
+                    antiloop[edge.to].add(edge.frm)
+                    antiloop[edge.to].update(antiloop[edge.frm])
+                    stack.append(edge.to)
+            
+        
+        return [string for end in self.ends for string in scoreboard[end]]
     
     def equivalent(self,other):
         fsa = self.determinize()

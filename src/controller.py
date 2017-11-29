@@ -4,6 +4,7 @@ from .assimilation import Assimilation
 from .fsa import FSA
 from .phonology import Phonology
 from .orthography import Orthography
+from .underlying_inventory import UnderlyingInventory
 
 def toString(entry):
     string = ""
@@ -37,7 +38,7 @@ def toVerboseString(entry):
             string += "Surface forms:\n"
             for form in entry["surface forms"]:
                 string += "  - " + form + "\n"
-            string += "Weights: " + entry["weight"] + "\n"
+            string += "Weights: " + str(entry["weight"]) + "\n"
             string += "Response time: " + str(entry["response time"])
         else:
             string += "No surface forms"
@@ -62,6 +63,10 @@ def toXML(entry):
 
 def makeLanguage(dictionary):
     if dictionary:
+        if "underlying inventory" in dictionary:
+            underlyingInventory = UnderlyingInventory(dictionary["underlying inventory"]["underlying"], dictionary["underlying inventory"]["borrowings"])
+        else:
+            underlyingInventory = False
         dictPhonotax = dictionary["phonotactics"]
         phonotactics = Phonotactics(
             dictPhonotax["side"],dictPhonotax["placement"],dictPhonotax["foot"],
@@ -75,6 +80,7 @@ def makeLanguage(dictionary):
         harmonies = [Assimilation(entry["lists"],entry["tier"],entry["dissimilation"]) for entry in dictionary["harmonies"]]
 
         phonology = Phonology(
+            underlyingInventory,
             dictionary["categories"],dictionary["insertions"],dictionary["changes"],
             dictionary["undeletables"],phonotactics,dictionary["order"],
             dictionary["geminates"],dictionary["codas"],dictionary["vowels"],

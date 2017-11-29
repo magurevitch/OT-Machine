@@ -91,6 +91,7 @@ Here are a few flags you can use
  -s Use the single letter orthography
  -x Output in XML format
  -v Output a verbose string
+ -b Borrow a word
 '''
 
 @client.command(pass_context=True,
@@ -106,7 +107,8 @@ async def word(cxt,*args):
         form = "Verbose String"
     if 'x' in flags:
         form = "XML"
-    entries = [controller.toForm[form](language.entry(word,orthography,prosody)) for word in words]
+    borrow = 'b' in flags
+    entries = [controller.toForm[form](language.entry(word,orthography,prosody,borrow)) for word in words]
     await client.say(cxt.message.author.mention)
     if entries:
         await client.say("\n".join(entries))
@@ -126,10 +128,13 @@ async def noun(cxt,*args):
         form = "Verbose String"
     if 'x' in flags:
         form = "XML"
-    entries = [controller.toForm[form](language.conjugate('N',word,orthography,prosody)) for word in words]
+    if 'b' in flags:
+        entries = [controller.toForm[form](entry) for word in words for entry in language.bestConjugation('N',word,orthography,prosody)]
+    else:
+        entries = [controller.toForm[form](language.conjugate('N',word,orthography,prosody)) for word in words]
     await client.say(cxt.message.author.mention)
     if entries:
-        entries = "\n".join(entries)
+        entries = "\n\n".join(entries)
         for i in range(0,len(entries),1800):
             await client.say(entries[:1800])
             entries = entries[1800:]

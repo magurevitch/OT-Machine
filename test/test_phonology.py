@@ -6,9 +6,11 @@ from src.fsa import FSA, FSAEdge
 from src.fst import FST, FSTEdge
 from src.phonology import Phonology
 from src.phonotactics import Phonotactics
+from src.underlying_inventory import UnderlyingInventory
 
 class TestPhonologyMethods(unittest.TestCase):
     def setUp(self):
+        underlyingInventory = UnderlyingInventory(["p","t","f","a","i"],{"k":["t","fa"],"her":["a","pi"],"d":["t"]})
         categories = {'C':['p','t','f'],'V':['a','i']}
         inserts = {'V':('t','b'),'C':('i','a')}
         changes = {"fi":["fa","pi"]}
@@ -21,7 +23,7 @@ class TestPhonologyMethods(unittest.TestCase):
         harmonies = []
         badstrings = ["afa","at","ta","pi"]
         traces = {"C":"H"}
-        self.phonology = Phonology(categories,inserts,changes,undel,phonotax,order,geminate,codas,vowels,harmonies,badstrings,traces,False)
+        self.phonology = Phonology(underlyingInventory,categories,inserts,changes,undel,phonotax,order,geminate,codas,vowels,harmonies,badstrings,traces,False)
         
     def tearDown(self):
         del self.phonology
