@@ -6,7 +6,8 @@ from .tambajna_finish import finish
 class Phonology:
     #fields: what categories of sounds do you have, what sounds can be inserted, what changes might happen to a string, what sounds cannot be deleted
     #the phonotactics (their own object), and which order the weights are in for violations.
-    def __init__(self,categories,inserts,changes,undel,phonotax,order,geminate,codas,vowels,harmonies,badstrings,traces,tambajnaFinish):
+    def __init__(self,underlyingInventory,categories,inserts,changes,undel,phonotax,order,geminate,codas,vowels,harmonies,badstrings,traces,tambajnaFinish):
+        self.underlyingInventory = underlyingInventory
         self.categories = categories
         self.inserts = inserts
         self.changes = changes
@@ -129,9 +130,7 @@ class Phonology:
         return fsa
     
     # This generates the list of all surface forms that fit phonotactics, as a list of syllables, and list of penalties
-    def phonologyFSA(self,string):
-        fsa = FSA.fromString(string)
-        
+    def phonologyFSA(self,fsa):
         fsa = self.cachedMods.product(fsa)
         
         fsa.edges += [FSAEdge(state,state,symbol) for state in fsa.states for symbol in [".","'",",",""]]
@@ -155,8 +154,12 @@ class Phonology:
         return fsa
 
     #This function takes the contenders, and finds the ones with the minimum penalty
-    def best(self,string):
-        fsa = self.phonologyFSA(string)
+    def best(self,string,borrow=False):
+        if borrow:
+            fsa = self.underlyingInventory.borrow(string)
+        else:
+            fsa = FSA.fromString(string)
+        fsa = self.phonologyFSA(fsa)
         
         (weight,winners) = fsa.dijkstra()
         
@@ -167,8 +170,7 @@ class Phonology:
             winners = list(set(finish(winner) for winner in winners))
         else:
             winners = list(set(winners))
-        
-        return (str(weight),winners)
+        return (weight,winners)
         
     def categorizeFsa(self,fsa):
         potential = []

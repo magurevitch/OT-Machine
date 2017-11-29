@@ -271,3 +271,15 @@ class TestFSAMethods(unittest.TestCase):
         actualFSA = FSA.fromRegex("[(A|B){C}|*DE#F]G")
         
         self.assertTrue(actualFSA.equivalent(expectedFSA), "regex to FSA is not working")
+        
+    def test_traverse(self):
+        expectedElements = ["abd","abe","cd","ce","cid","cie"]
+        
+        fsa = FSA(0,[3,4],[0,1,2,3,4],[])
+        fsa.addEdges([
+            (0,1,"a"),(1,2,"b"),(0,2,"c"),(2,3,"d"),(2,4,"e"),(2,2,"i")
+            ])
+        
+        actualElements = sorted(fsa.traverse())
+        
+        self.assertEqual(expectedElements,actualElements,"traverse isn't working correctly")
