@@ -9,8 +9,13 @@ class Phonotactics:
         self.placement = placement
         self.foot = foot
         self.usphon = usphon
-        self.psphon = addBefore(psphon,"'")
-        self.ssphon = addBefore(ssphon if ssphon else psphon,",")
+        if psphon:
+            self.psphon = psphon.addBefore("'")
+            ssphon = ssphon if ssphon else psphon
+            self.ssphon = ssphon.addBefore(",")
+        else:
+            self.psphon = False
+            self.ssphon = False
         self.bephon = bephon
         self.canInsert = canInsert
         self.canDelete = canDelete
@@ -21,8 +26,9 @@ class Phonotactics:
             fsa.addEdge("I","I",".")
             fsa.ends = ["I"]
             return fsa
-        fsa.states += ["P","S"]
+        fsa.states += ["P"]
         if self.foot > 0:
+            fsa.states += ["S"]
             fsa.addString('P','S',(self.foot+1)*".",[])
             fsa.addEdge('S','P'+(self.foot+1)*"."+"1",'.')
         else:
@@ -31,7 +37,6 @@ class Phonotactics:
             fsa.addEdge("P",".",".")
             fsa.addEdge(".",".",".")
         fsa.addString('I','P',self.placement*".",[])
-        
         
         deletions = []
         if self.canDelete:
@@ -68,9 +73,10 @@ class Phonotactics:
     
     def phonotacticFSA(self):
         fsa = self.syllableFSA()
-        
+
         if len(fsa.states) == 1:
             fsa.replace("I",self.usphon)
+            
         for state in set(fsa.states):
             if "-" not in state:
                 if "." in state:
@@ -83,11 +89,3 @@ class Phonotactics:
                     fsa.replace(state,self.ssphon)
         fsa.relabelStates()
         return fsa.crunchEdges()
-    
-    
-def addBefore(fsa,symb):
-    if isinstance(fsa,FSA):
-        fsa.addEdge("new",fsa.start,symb)
-        fsa.states += ["new"]
-        fsa.start = "new"
-    return fsa

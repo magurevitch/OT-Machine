@@ -28,8 +28,9 @@ class WordsFrame(Frame):
         self.loading_animation()
         
         conjugation = self.selectedConjugation.get()
+        orthography = self.selectedOrthography.get()
         words = self.entry.get().strip().replace(' ', ',').split(',')
-        newThread = ComputeThread(self,conjugation,words)
+        newThread = ComputeThread(self,conjugation,orthography,words)
 
     def buttonRelease(self,event=None):
         if self.downLevel > 3:
@@ -63,10 +64,14 @@ class WordsFrame(Frame):
             self.leverLabel["image"] = self.leverFrames[self.downLevel]
             self.master.after(10,self.leverUp)
 
-    def updateConjugations(self):
+    def updateConjugationsAndOrthographies(self):
         self.conjugationMenu['menu'].delete(1,'end')
         for conjugation in self.language.conjugations:
             self.conjugationMenu['menu'].add_command(label=conjugation, command=lambda: self.selectedConjugation.set(conjugation))
+            
+        self.orthographyMenu['menu'].delete(1,'end')
+        for orthography in self.language.orthographies:
+            self.orthographyMenu['menu'].add_command(label=orthography, command=lambda: self.selectedOrthography.set(orthography))
             
     def leftFrame(self):
         frame = Frame(self)
@@ -81,6 +86,16 @@ class WordsFrame(Frame):
         Label(frame, text="Word: ").pack()
         self.entry = Entry(frame)
         self.entry.pack()
+
+        self.borrow = IntVar()
+        Checkbutton(frame, text="Borrow", variable=self.borrow).pack()
+        
+        self.selectedOrthography = StringVar()
+        self.selectedOrthography.set(" ")
+        Label(frame, text="Orthography: ").pack()
+        self.orthographyMenu = OptionMenu(frame,self.selectedOrthography," ")
+        self.orthographyMenu['menu'].add_command(label=" ", command=lambda: self.selectedOrthography.set(" "))
+        self.orthographyMenu.pack()
 
         Label(frame, text="Compute").pack()
         self.leverLabel = Label(frame)
@@ -106,28 +121,40 @@ class WordsFrame(Frame):
                                      "String","Verbose String", "XML")
         self.outputMenu.pack()
         
-        self.autoClear = IntVar()
-        self.autoClearChoice = Checkbutton(frame, text="Automatically clear", variable=self.autoClear)
-        self.autoClearChoice.pack()
-        
         self.clear = Button(frame, text="Clear")
         self.clear.bind("<Button-1>",lambda event: self.output.delete('1.0','end'))
         self.clear.pack()
         
+        self.autoClear = IntVar()
+        Checkbutton(frame, text="Automatically clear", variable=self.autoClear).pack()
+        
+        self.prosody = IntVar()
+        self.prosody.set(1)
+        Checkbutton(frame, text="Show Prosody", variable=self.prosody).pack()
+        
         return frame
     
 class ComputeThread(Thread):
-    def __init__(self,frame,conjugation,words):
+    def __init__(self,frame,conjugation,orthography,words):
         Thread.__init__(self)
         self.frame = frame
         self.conjugation = conjugation
+        if orthography == " ":
+            self.orthography = False
+        else:
+            self.orthography = orthography
         self.words = words
         self.daemon = True
         self.start()
         
     def run(self):
+        removeProsody = not(self.frame.prosody.get())
+        borrow = self.frame.borrow.get()
+        
         if self.conjugation == " ":
-            entries = [self.frame.language.entry(word) for word in self.words]
+            entries = [self.frame.language.entry(word,self.orthography,removeProsody,borrow) for word in self.words]
+        elif borrow:
+            entries = [entry for word in self.words for entry in self.frame.language.bestConjugation(self.conjugation,word,self.orthography,removeProsody)]
         else:
-            entries = [self.frame.language.conjugate(self.conjugation, word) for word in self.words]
+            entries = [self.frame.language.conjugate(self.conjugation, word, self.orthography, removeProsody) for word in self.words]
         self.frame.done = entries

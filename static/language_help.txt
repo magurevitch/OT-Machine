@@ -1,0 +1,9 @@
+Properties of languages that are outside of the phonology:
+
+Conjugations:
+In the conjugations table, you can add in each conjugation.
+
+The from name can be something like "nominative" and the form should leave an underscore for each place the root appears (so reduplication with a t in the middle is _t_)
+
+Orthographies:
+You can specify an orthography, to allow for digraphs, easier typing, etc.

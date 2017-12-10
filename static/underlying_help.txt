@@ -1,0 +1,8 @@
+The underlying phonology tab is currently only important if you want to make specific sound changes
+
+The Underlying Phonemes should be a comma-or-space separated list of all symbols that your language should keep the same when it is borrowing.
+
+Guess phonemes currently puts every phoneme in a category into the list of underlying phonemes.
+
+Borrowing:
+Left side is where you put a symbol or sequence of symbols. The right is for a comma-or-space separated list of things that it could become.

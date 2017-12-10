@@ -1,0 +1,13 @@
+A langauge's simple fields are as following:
+
+Vowels:
+Where you put the categories or sounds, comma-or-space separated, that are vowels. This is to make sure every syllable has a vowel, and allows you to specify changes that only occur in codas.
+
+Undeletables:
+Put sounds or categories of sounds that cannot be deleted, comma-or-space separated, in the undeletables section.
+
+Geminates:
+For sounds or categories that can be geminated.
+
+Bad Strings
+Bad strings is where you insert, as sounds, never with any categories, what sequences of sounds are bad in your language.

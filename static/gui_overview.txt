@@ -1,0 +1,19 @@
+This machine uses a simplified version of Optimality Theory for Phonology.
+
+The machine has two parts: one to specify your langauge's specifications, and one to use the langauge to generate surface forms.
+
+When you are happy with your conlang, press "run the machine with the current conlang"
+
+The two fields that cannot be null are the "vowels" and the "default syllable"
+
+When you hover over a section of the language, it will expand to show all the options.
+
+When you click on the label of a section, it will keep that section open even after you go to a different section.
+
+Categories:
+For each entry you put in, put your single-character category label in the first column, and comma-or-space separated phones of that category in the second column. All phonemes must be single characters.
+
+Order:
+The order is where you decide what constraints are more or less bad in your conlang. Select a constrain and use the arrow buttons to reörder it. The top are the worst violations, and the bottom are the least bad.
+
+The six violations are: "bs- having a Bad String," "chg- CHanGing a sound," "del- DELeting a sound," "harm - violating a HARMony or assimilation," "ins - INSerting a sound," and "pen- having a phonotactics violation PENalty"

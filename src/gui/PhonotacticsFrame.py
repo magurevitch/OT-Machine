@@ -4,8 +4,6 @@ class PhonotacticsFrame(Frame):
     def __init__(self,master):
         Frame.__init__(self,master)
         
-        Label(self,text = "Phonotactics").grid(row=0, column=0)
-        
         self.sideVar = StringVar()
         self.sideVar.set("None")
         self.sideVar.trace("w",self.showPrimary) 
@@ -22,7 +20,7 @@ class PhonotacticsFrame(Frame):
         self.alwaysFrame = Frame(self)
         self.primaryFrame = Frame(self)
         
-        self.alwaysFrame.grid(row=1,column=0)
+        self.alwaysFrame.grid(row=0,column=0)
         
         Label(self.alwaysFrame,text = "Side:").pack()
         self.side = OptionMenu(self.alwaysFrame,self.sideVar,"None","Left","Right")
@@ -55,7 +53,7 @@ class PhonotacticsFrame(Frame):
         if self.sideVar.get() == "None":
             self.primaryFrame.grid_forget()
         else:
-            self.primaryFrame.grid(row=1,column=1)
+            self.primaryFrame.grid(row=0,column=1)
             
     def showSecondary(self,*args):
         if self.footVar.get() == "0":
