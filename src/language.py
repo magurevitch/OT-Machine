@@ -1,5 +1,6 @@
 import time
 import collections
+from .weight import zeroWeight
 
 class Language:
     def __init__(self,phono,conjugations,orthographies={}):

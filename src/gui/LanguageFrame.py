@@ -4,7 +4,7 @@ import json
 sys.path.append('../')
 import src.controller as controller
 from .PhonotacticsFrame import PhonotacticsFrame
-from .ExpandingFrames import ExpandingListFrame, ListFrame, ConjugationFrame, AssimilationFrame
+from .ExpandingFrames import ExpandingListFrame, ListFrame, ConjugationFrame, AssimilationFrame, OrthographyFrame
 
 class LanguageFrame(Frame):
     def __init__(self,master):
@@ -28,63 +28,84 @@ class LanguageFrame(Frame):
         self.helpButton.bind("<Button-1>",self.help)
         self.helpButton.grid(row = 0, column = 4)
         
-        self.categories = ExpandingListFrame(self,"Categories",["Label","types"],25)
-        self.categories.grid(row = 1, column = 0, columnspan = 2)
+        self.leftFrame = Frame(self)        
+        self.categories = ExpandingListFrame(self.leftFrame,"Categories",["Label","Phonemes"],25)
+        self.categories.pack()
+        self.orderFrame = OrderFrame(self.leftFrame)
+        self.orderFrame.pack()
+        self.leftFrame.grid(row=1,column=0)
         
-        self.makeStringFrames().grid(row = 1, column = 2)
+        self.centerFrame = Frame(self)
         
-        self.orderFrame = OrderFrame(self)
-        self.orderFrame.grid(row = 1, column = 3)
+        self.zero = self.makeStringFrames(self.centerFrame)
+        self.zero.pack(fill=X)
         
-        self.traces = ExpandingListFrame(self,"Traces",["sound:","Trace:"],3,True)
-        self.traces.grid(row = 2, column = 0)
+        self.one = Section(self.centerFrame,"Modifications","Changes, insertions, assimilations\nchanges in coda, traces","modifications_help")
+        self.changes = ExpandingListFrame(self.one.hidingFrame,"Changes",["Original","Changed"])
+        self.changes.grid(row=0,column=0)
+        self.insertions = ExpandingListFrame(self.one.hidingFrame,"Insertions",["Near:","Insert a:","Where:"],3,True)
+        self.insertions.grid(row=0,column=1)
+        self.assimilations = ListFrame(self.one.hidingFrame,"Assimilations",AssimilationFrame)
+        self.assimilations.grid(row=0,column=2)
+        self.codas = ExpandingListFrame(self.one.hidingFrame,"Changes in Codas",["Original","Changed"])
+        self.codas.grid(row=1,column=0)
+        self.traces = ExpandingListFrame(self.one.hidingFrame,"Traces",["Sound:","Trace:"],3,True)
+        self.traces.grid(row=1,column=1)
+        self.tambajnaFinish = IntVar()
+        self.tambajnaFinish.set(0)
+        Checkbutton(self.one.hidingFrame,text = "Tambajna-like tone", variable = self.tambajnaFinish).grid(row=1,column=2)
         
-        self.codas = ExpandingListFrame(self,"Changes in Codas",["Original","Changed"])
-        self.codas.grid(row = 2, column = 1)
+        self.one.pack(fill=X)
         
-        self.insertions = ExpandingListFrame(self,"Insertions",["Near:","Insert a:","Where:"],3,True)
-        self.insertions.grid(row = 2, column = 2, columnspan = 2)
+        self.two = Section(self.centerFrame,"Phonotactics","","phonotactic_help")
+        self.phonotacticsFrame = PhonotacticsFrame(self.two.hidingFrame)
+        self.phonotacticsFrame.pack()
+        self.two.pack(fill=X)
         
-        self.changes = ExpandingListFrame(self,"Changes",["Original","Changed"])
-        self.changes.grid(row = 3, column = 0, rowspan = 2)
+        self.three = Section(self.centerFrame,"Language properties","Conjugations, orthographies","language_help")
+        self.conjugations = ListFrame(self.three.hidingFrame,"Conjugations",ConjugationFrame)
+        self.conjugations.pack(side=LEFT)
+        self.orthographies = ListFrame(self.three.hidingFrame,"Orthographies",OrthographyFrame)
+        self.orthographies.pack(side=LEFT)
+        self.three.pack(fill=X)
         
-        self.phonotacticsFrame = PhonotacticsFrame(self)
-        self.phonotacticsFrame.grid(row = 3, column = 1, columnspan = 3)
+        self.four = Section(self.centerFrame,"Underlying phonology","Underlying phonemes, borrowing","underlying_help")
+        Label(self.four.hidingFrame, text="Underlying Phonemes:").grid(row=0,column=0)
+        self.underlyingPhonemes = Text(self.four.hidingFrame,width=18,height=10)
+        self.underlyingPhonemes.grid(row=1,column=0)
+        self.fillBullon = Button(self.four.hidingFrame,text="Guess phonemes")
+        self.fillBullon.bind("<Button-1>", self.guessUnderlying)
+        self.fillBullon.grid(row=2,column=0)
+        self.borrow = ExpandingListFrame(self.four.hidingFrame,"Borrowing",["grapheme","phoneme"])
+        self.borrow.grid(row=0,column=1,rowspan=3)
+        self.four.pack(fill=X)
         
-        self.assimilations = ListFrame(self,"assimilations",AssimilationFrame)
-        self.assimilations.grid(row = 4, column = 1)
-        
-        self.conjugations = ListFrame(self,"conjugations",ConjugationFrame)
-        self.conjugations.grid(row = 4, column = 2, columnspan = 2)
-        
+        self.centerFrame.grid(row=1,column=1)
+    
         self.openText = Button(self, text = ">>\ntext input")
         self.openText.bind("<Button-1>",self.openLanguage)
-        self.openText.grid(row=0, column = 4, rowspan = 5)
+        self.openText.grid(row=0, column = 2,rowspan=2)
         
         self.languageText = TextInput(self)
     
-    def makeStringFrames(self):
-        frame = Frame(self)
+    def makeStringFrames(self,master):
+        frame = Section(master,"Simple things","Vowels, Undeletable, Geminates, Bad strings","string_help")
         
-        Label(frame,text = "Vowels:").grid(row = 0, column = 0)
-        self.vowels = Entry(frame)
+        Label(frame.hidingFrame,text = "Vowels:").grid(row = 0, column = 0)
+        self.vowels = Entry(frame.hidingFrame,width=36)
         self.vowels.grid(row = 0, column = 1)
         
-        Label(frame,text = "Undeletables:").grid(row = 1, column = 0)
-        self.undeletables = Entry(frame)
+        Label(frame.hidingFrame,text = "Undeletables:").grid(row = 1, column = 0)
+        self.undeletables = Entry(frame.hidingFrame,width=36)
         self.undeletables.grid(row = 1, column = 1)
         
-        Label(frame,text = "Geminates:").grid(row = 2, column = 0)
-        self.geminates = Entry(frame)
+        Label(frame.hidingFrame,text = "Geminates:").grid(row = 2, column = 0)
+        self.geminates = Entry(frame.hidingFrame,width=36)
         self.geminates.grid(row = 2, column = 1)
         
-        Label(frame,text = "Bad strings:").grid(row = 3, column = 0)
-        self.badstrings = Entry(frame)
+        Label(frame.hidingFrame,text = "Bad strings:").grid(row = 3, column = 0)
+        self.badstrings = Entry(frame.hidingFrame,width=36)
         self.badstrings.grid(row = 3, column = 1)
-        
-        self.tambajnaFinish = IntVar()
-        self.tambajnaFinish.set(0)
-        Checkbutton(frame,text = "Tambajna-like tone", variable = self.tambajnaFinish).grid(row=4,columnspan=2)
         
         return frame
         
@@ -105,23 +126,28 @@ class LanguageFrame(Frame):
             "undeletables": self.undeletables.get().replace(' ', ',').split(',') if self.undeletables.get() else False,
             "geminates": self.geminates.get().replace(' ', ',').split(','),
             "vowels": self.vowels.get().replace(' ', ',').split(','),
-            "bad strings": self.badstrings.get().replace(' ', ',').split(',') if self.badstrings.get() else False,
+            "bad strings": self.badstrings.get().replace(' ', ',').split(','),
             "order": self.orderFrame.get(),
             "traces": self.traces.get(),
-            "tambajna finish": self.tambajnaFinish.get()
+            "tambajna finish": self.tambajnaFinish.get(),
+            "orthographies": self.orthographies.get(),
+            "underlying inventory":{
+                "underlying":self.underlyingPhonemes.get('1.0',END).replace(' ', ',').split(',') if self.badstrings.get() else False,
+                "borrowings":self.borrow.get()
+                }
             }
         
     def getLangauge(self,event):
         self.openLanguage(event)
-        self.languageText.textbox.delete('1.0', END)
         language = json.dumps(self.get())
-        self.languageText.textbox.insert('1.0', language)
+        insertToEntry(self.languageText.textbox, '1.0', language)
 
     def insertLanguage(self, dictionary):
-        insertToEntry(self.vowels, " ".join(dictionary["vowels"]))
-        insertToEntry(self.geminates, " ".join(dictionary["geminates"]))
-        insertToEntry(self.undeletables, " ".join(dictionary["undeletables"]) if dictionary["undeletables"] else "")
-        insertToEntry(self.badstrings, " ".join(dictionary["bad strings"]) if dictionary["bad strings"] else "")
+        insertToEntry(self.vowels, 0, " ".join(dictionary["vowels"]))
+        insertToEntry(self.geminates, 0, " ".join(dictionary["geminates"]))
+        insertToEntry(self.undeletables, 0, " ".join(dictionary["undeletables"]) if dictionary["undeletables"] else "")
+        insertToEntry(self.badstrings, 0, " ".join(dictionary["bad strings"]) if dictionary["bad strings"] else "")
+        insertToEntry(self.underlyingPhonemes, '1.0', " ".join(dictionary["underlying inventory"]["underlying"]) if dictionary["underlying inventory"] else "")
         self.tambajnaFinish.set(dictionary["tambajna finish"])
         self.orderFrame.order.delete(0, 6)
         for num, item in enumerate(dictionary["order"]):
@@ -135,6 +161,8 @@ class LanguageFrame(Frame):
         self.codas.insert(dictionary["codas"])
         self.assimilations.insert(dictionary["harmonies"])
         self.conjugations.insert(dictionary["conjugations"])
+        self.orthographies.insert(dictionary["orthographies"])
+        self.borrow.insert(dictionary["underlying inventory"]["borrowings"])
 
     def insertTambajna(self,event):
         file = open("./static/tambajna_phonology.txt","r")
@@ -144,8 +172,8 @@ class LanguageFrame(Frame):
         self.insertLanguage(dictionary)
         
     def unfilledNecessaries(self):
-        necessaries = [self.vowels, self.phonotacticsFrame.unstressed]
-        return [n for n in necessaries if n.get() == ""]
+        necessaries = {self.vowels:self.zero, self.phonotacticsFrame.unstressed:self.two}
+        return {n:p for (n,p) in necessaries.items() if n.get() == ""}
         
     def clear(self,event):
         blankLanguage = {
@@ -162,7 +190,9 @@ class LanguageFrame(Frame):
             "bad strings": [],
             "traces": {},
             "tambajna finish":False,
-            "conjugations": {}
+            "conjugations": {},
+            "orthographies": {},
+            "underlying inventory":{"underlying":[],"borrowings":{}}
             }
         self.insertLanguage(blankLanguage)
         
@@ -173,17 +203,24 @@ class LanguageFrame(Frame):
         scrollbar = Scrollbar(top)
         scrollbar.pack(side=RIGHT, fill=Y)
 
-        file = open("gui_help.txt","r")
         text = Text(top, yscrollcommand=scrollbar.set)
-        text.insert('1.0',file.read())
+
+        for file in ["gui_overview","string_help","modifications_help","phonotactic_help","language_help","underlying_help"]:
+            file = open("./static/" + file + ".txt","r")
+            text.insert(END,file.read())
+            file.close()
         text.pack()
-        file.close()
         
         scrollbar.config(command=text.yview)
         
     def openLanguage(self,event = None):
         self.openText.grid_forget()
-        self.languageText.grid(row=0, column = 4, rowspan = 5)
+        self.languageText.grid(row=0, column = 4, rowspan = 2)
+        
+        
+    def guessUnderlying(self,event):
+        phonemes = " ".join(set(phoneme for list in self.categories.get().values() for phoneme in list))
+        insertToEntry(self.underlyingPhonemes,'1.0', phonemes)
 
 class OrderFrame(Frame):
     def __init__(self,master):
@@ -231,8 +268,13 @@ class TextInput(Frame):
         self.setButton.bind("<Button-1>",self.setLanguage)
         self.setButton.grid(row = 0, column = 1)
         
+        self.clearButton = Button(self, text="clear")
+        self.clearButton.grid(row=0,column=2)
+        
         self.textbox = Text(self)
-        self.textbox.grid(row = 1, column = 0, columnspan = 2)
+        self.textbox.grid(row = 1, column = 0, columnspan = 3)
+        
+        self.clearButton.bind('<Button-1>',lambda e: self.textbox.delete('1.0', END))
         
     def setLanguage(self,event):
         language = json.loads(self.textbox.get("1.0",END))
@@ -240,8 +282,69 @@ class TextInput(Frame):
         
     def close(self,event = None):
         self.grid_forget()
-        self.master.openText.grid(row=0, column = 4, rowspan = 5)
+        self.master.openText.grid(row=0, column = 4, rowspan = 2)
+        
+class Section(Frame):
+    def __init__(self,master,name,display,helpFile):
+        Frame.__init__(self, master, highlightbackground="black", highlightthickness=1)
+        
+        self.name = name
+        self.label = Label(self,text=name)
+        self.label.grid(row=0,column=0)
+        
+        self.display = Label(self,text=display)
+        self.hidingFrame = Frame(self)
+        self.display.grid(row=1,column=0,columnspan=2)
+        
+        self.helpButton = Button(self,text="Help")
+        self.helpFile = helpFile
+        
+        self.bind('<Enter>',self.show)
+        self.bind('<Leave>',self.hide)
+        self.bind('<Button-1>',self.click)
+        self.hidingFrame.bind('<Button-1>',self.click)
+        self.label.bind('<Button-1>',self.click)
+        self.helpButton.bind('<Button-1>',self.help)
+        
+        self.isClicked = False
+    
+    def show(self,event):
+        self.display.grid_forget()
+        self.helpButton.grid(row=0,column=1)
+        self.hidingFrame.grid(row=1,column=0,columnspan=2)
+    
+    def hide(self,event):
+        self.helpButton.grid_forget()
+        self.hidingFrame.grid_forget()
+        self.display.grid(row=1,column=0,columnspan=2)
+        
+    def click(self,event):
+        if self.isClicked:
+            self.config(highlightbackground="black")
+            self.isClicked = False
+            self.bind('<Leave>',self.hide)
+        else:
+            self.config(highlightbackground="red")
+            self.isClicked = True
+            self.unbind('<Leave>')
+        
+    def help(self,event):
+        top = Toplevel()
+        top.title(self.name + " help")
+        
+        scrollbar = Scrollbar(top)
+        scrollbar.pack(side=RIGHT, fill=Y)
 
-def insertToEntry(entry,string):
-    entry.delete(0,"end")
-    entry.insert(0,string)
+        text = Text(top, yscrollcommand=scrollbar.set)
+
+        
+        file = open("./static/" + self.helpFile + ".txt","r")
+        text.insert(END,file.read())
+        file.close()
+        text.pack()
+        
+        scrollbar.config(command=text.yview)
+
+def insertToEntry(entry,index,string):
+    entry.delete(index,END)
+    entry.insert(index,string)

@@ -1,0 +1,27 @@
+The most fun things Optimality theory allows you to do are to modify underlying forms to get surface forms
+
+Changes:
+List out what a sequence of sounds can change into, with each full outcome comma-or-space separated. You can have multi-phoneme sequences on either side.
+
+Insertions:
+For each entry specify what sound you can insert near a specified sound or category, and if you insert it before or after.
+
+Assimilations:
+Lets you make classes of things like assimilation, vowel harmony, etc.
+
+A short distance harmony means that phonemes only care about the phonemes next to them.
+
+A long distance harmony means that phonemes interact with the closest phonemes in the same category.
+
+An opaque phoneme is one that stops long distance harmony from going through it.
+
+For example, if you have front-back vowel harmony that is stopped by [a] but goes through [y] as if it were transparent, then you check long distance, put [a] as an opaque, and then in one row, put [u o] and another row put [i e]
+
+Changes in codas:
+Like changes, but only for sounds that can change in coda position.
+
+Traces:
+Sometimes, when you delete a single phoneme, you want to keep track of what you deleted. The left column is for the phoneme or category, and the right is for the symbol you have chosen to represent the trace.
+
+Tambajna-like tone:
+Collects the traces "H" and "L" between each stressed vowel, and gives each stressed vowel a tone based on what are the traces around it.

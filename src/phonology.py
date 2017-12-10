@@ -150,7 +150,7 @@ class Phonology:
         symbols = set(edge.label for edge in fsa.edges) - set([".","'",","]+self.getTraces())
         
         fsa = fsa.multiproduct(list(map(lambda x: x.harmonyFSA(symbols,self.getTraces()), self.harmonies)) + [self.cachedBad])
-        
+
         return fsa
 
     #This function takes the contenders, and finds the ones with the minimum penalty

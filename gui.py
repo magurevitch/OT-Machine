@@ -14,22 +14,24 @@ class Application:
         self.languageFrame.grid(row = 1)
 
     def toLanguage(self,event):
+        self.wordsFrame.output.delete('1.0','end')
         self.wordsFrame.grid_forget()
         self.languageFrame.grid(row = 1)
         self.toLanguageButton.grid_forget()
         self.toWordsButton.grid(row = 0)
     
     def toWords(self,event):
-        if self.languageFrame.unfilledNecessaries() != []:
-            for necessary in self.languageFrame.unfilledNecessaries():
+        if self.languageFrame.unfilledNecessaries():
+            for necessary,place in self.languageFrame.unfilledNecessaries().items():
                 necessary.insert(0,"cannot be null")
+                place.show(False)
         else:
             self.languageFrame.grid_forget()
             self.wordsFrame.grid(row = 1)
             self.toWordsButton.grid_forget()
             self.toLanguageButton.grid(row = 0)
             self.wordsFrame.language = self.languageFrame.makeLanguage()
-            self.wordsFrame.updateConjugations()
+            self.wordsFrame.updateConjugationsAndOrthographies()
 
     def makeToggleFrame(self,master):
         frame = Frame(master)

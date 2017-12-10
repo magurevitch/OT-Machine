@@ -56,6 +56,9 @@ class FSA(FSM):
         self.edges += [FSAEdge(newState(edge.frm),newState(edge.to),edge.label,edge.weight) for edge in fsa.edges]
         return self
     
+    def addBefore(self,symb):
+        return FSA("new",self.ends,self.states+["new"],self.edges+[FSAEdge("new",self.start,symb)])
+    
     def addString(self,frm,to,string,wgt):
         temp = [str(frm) + string + str(i) for i in range(1,len(string))]
         self.states += temp

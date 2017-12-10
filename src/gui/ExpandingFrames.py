@@ -4,16 +4,18 @@ class ExpandingListFrame(Frame):
     def __init__(self,master,name,columnNames, secondColumnWidth = 10,notList = False):
         Frame.__init__(self,master)
         
-        Label(self,text=name).grid(row=0,columnspan =2)
+        self.label = Label(self,text=name)
+        self.label.grid(row=0,columnspan =2)
+        
+        self.columns = columnNames
         
         self.expand = ExpansionFrame(self,addFunction = self.addDefault,deleteFunction = self.deleteDefault)
-        self.expand.grid(row=2,column=0)
+        self.expand.grid(row=2,column=0,columnspan=len(self.columns))
         
         self.firstColumn = []
         self.secondColumn = []
         self.thirdColumn = []
         
-        self.columns = columnNames
         self.buttons = []
         
         for i in range(len(self.columns)):
@@ -23,7 +25,6 @@ class ExpandingListFrame(Frame):
         self.notList = notList
         
     def addDefault(self,event = None):
-        self.expand.grid_forget()
         self.firstColumn += [Entry(self, width = 7)]
         if len(self.columns) > 1:
             self.secondColumn += [Entry(self, width = self.secondColumnWidth)]
@@ -39,19 +40,19 @@ class ExpandingListFrame(Frame):
             if len(self.columns) > 2:
                 self.buttons[2*number].grid(row=number+2,column=2)
                 self.buttons[2*number+1].grid(row=number+2,column=3)
-        self.expand.grid(row=len(self.firstColumn)+2)
+        self.expand.grid(row=len(self.firstColumn)+2,columnspan=len(self.columns))
     
     def deleteDefault(self,event = None):
-        self.expand.grid_forget()
-        self.firstColumn.pop().grid_forget()
+        if self.firstColumn:
+            self.firstColumn.pop().grid_forget()
         
-        if len(self.columns) > 1:
-            self.secondColumn.pop().grid_forget()
-        if len(self.columns) > 2:
-            self.thirdColumn.pop()
-            self.buttons.pop().grid_forget()
-            self.buttons.pop().grid_forget()
-        self.expand.grid(row=len(self.firstColumn)+2)
+            if len(self.columns) > 1:
+                self.secondColumn.pop().grid_forget()
+            if len(self.columns) > 2:
+                self.thirdColumn.pop()
+                self.buttons.pop().grid_forget()
+                self.buttons.pop().grid_forget()
+        self.expand.grid(row=len(self.firstColumn)+2,columnspan=len(self.columns))
             
     def get(self):
         if len(self.columns) == 1:
@@ -177,10 +178,11 @@ class AssimilationFrame(Frame):
                     
 class ConjugationFrame(ExpandingListFrame):
     def __init__(self,master):
-        ExpandingListFrame.__init__(self,master,"Conjugation name:",["Form name","form"])
+        ExpandingListFrame.__init__(self,master,"Conj. name:",["Form name","form"])
         
-        self.name = Entry(self)
+        self.name = Entry(self,width=10)
         self.name.grid(row=0,column=1)
+        self.label.grid(row=0,column=0,columnspan=1)
         
     def get(self):
         return [[self.firstColumn[i].get(),self.secondColumn[i].get()]
@@ -190,6 +192,23 @@ class ConjugationFrame(ExpandingListFrame):
         self.clear()
         
         for (name,form) in dictionary:
+            self.expand.addEntry()
+            
+            insertToEntry(self.firstColumn[-1],name)
+            insertToEntry(self.secondColumn[-1],form)
+            
+class OrthographyFrame(ExpandingListFrame):
+    def __init__(self,master):
+        ExpandingListFrame.__init__(self,master,"Ortho. name:",["grapheme","phoneme"],notList=True)
+        
+        self.name = Entry(self,width=10)
+        self.name.grid(row=0,column=1)
+        self.label.grid(row=0,column=0,columnspan=1)
+        
+    def insert(self, dictionary):
+        self.clear()
+        
+        for (name,form) in dictionary.items():
             self.expand.addEntry()
             
             insertToEntry(self.firstColumn[-1],name)
