@@ -3,7 +3,7 @@ import collections
 from .weight import zeroWeight
 
 class Language:
-    def __init__(self,phono,conjugations,orthographies={}):
+    def __init__(self,phono,conjugations,orthographies):
         self.phono = phono
         self.conjugations = conjugations
         self.orthographies = orthographies
@@ -64,3 +64,46 @@ class Language:
         
         return {"underlying":word,"status":status,"weight":weight,
                 "response time":timeToGenerate,"surface forms":surfaceForms}
+        
+    def toDictionary(self):
+        phonology = self.phono
+        dictionary = {
+            "conjugations": self.conjugations,
+            "categories": phonology.categories,
+            "insertions": phonology.inserts,
+            "changes": phonology.changes,
+            "undeletables": phonology.undel,
+            "order": phonology.order,
+            "geminates": phonology.geminate,
+            "codas": phonology.codas,
+            "vowels": phonology.vowels,
+            "bad strings": phonology.badstrings,
+            "traces": phonology.traces,
+            "tambajna finish": phonology.tambajnaFinish
+            }
+        if self.orthographies:
+            dictionary["orthographies"] = {key:val.map for (key, val) in self.orthographies.items()}
+        if phonology.underlyingInventory:
+            dictionary["underlying inventory"] = {
+                "underlying": phonology.underlyingInventory.underlying,
+                "borrowings": phonology.underlyingInventory.borrowings
+                }
+        phonotax = phonology.phonotax
+        dictionary["phonotactics"] = {
+            "side": phonotax.side,
+            "foot": phonotax.foot,
+            "placement": phonotax.placement,
+            "unstressed": phonotax.usphon.toRegex(),
+            "primary stress": phonotax.psphon.toRegex() if phonotax.psphon else False,
+            "secondary stress": phonotax.ssphon.toRegex() if phonotax.ssphon else False,
+            "bad edge": phonotax.bephon.toRegex() if phonotax.bephon else False,
+            "can insert": phonotax.canInsert,
+            "can delete": phonotax.canDelete
+            }
+        dictionary["harmonies"] = [{
+            "lists":harmony.lists,
+            "tier":harmony.opaques,
+            "dissimilation":harmony.dissimilation}
+            for harmony in phonology.harmonies]
+        
+        return dictionary
