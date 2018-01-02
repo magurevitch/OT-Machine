@@ -10,7 +10,7 @@ class WordsFrame(Frame):
     def __init__(self,master):
         Frame.__init__(self,master)
         
-        self.language = controller.makeLanguage({})
+        self.language = False
         
         self.leftFrame().grid(row = 0, column = 0)
 

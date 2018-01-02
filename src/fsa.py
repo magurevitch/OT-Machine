@@ -223,71 +223,63 @@ class FSA(FSM):
             return False
         
         fsa = cls(0,['f'],[0],[])
+        
         def ThompsonRecurse(start,end,string):
-            open = max(fsa.states) + 1
-            if len (string) < 1:
+            if len(string) < 1:
                 fsa.quotient([end,start])
-            elif string[0] in '([{':
-                if string[0] == '(':
-                    fsa.edges += [FSAEdge(start,open,"")]
-                elif string[0] == '{':
-                    fsa.edges += [FSAEdge(start,open,"",['pen'])]
-                branches = []
-                remainder = ""
-                state = 0
-                place = 0
-                while place < len(string):
-                    if string[place] in ')]}':
-                        if state == 1:
-                            branches += [remainder]
-                            break
-                        else:
-                            remainder += string[place]
-                            state -= 1
-                    elif string[place] in '([{':
-                        if state != 0:
-                            remainder += string[place]
-                        state += 1
-                    elif string[place] in '\|/' and state == 1:
-                        branches += [remainder]
-                        remainder = ""
-                    else:
-                        remainder += string[place]
-                    place += 1
-                remainder = string[place+1:]
-                if open not in fsa.states:
-                    fsa.states += [open]
-                for branch in branches:
-                    ThompsonRecurse(start,open,branch)
-                if remainder:
-                    ThompsonRecurse(open,end,remainder)
-                else:
-                    fsa.quotient([end,open])
             elif len(string) == 1:
-                fsa.edges += [FSAEdge(start,end,string)]
-                if open not in fsa.states:
-                    fsa.states += [open]
-            elif string[0] == '*':
-                fsa.edges += [FSAEdge(start,open,string[1],['pen'])]
-                fsa.edges += [FSAEdge(start,open,"")]
-                if open not in fsa.states:
-                    fsa.states += [open]
-                ThompsonRecurse(open,end,string[2:])
-            elif string[0] == '#':
-                fsa.edges += [FSAEdge(start,open,string[1],['pen'])]
-                if open not in fsa.states:
-                    fsa.states += [open]
-                ThompsonRecurse(open,end,string[2:])
+                fsa.addEdge(start,end,string)
             else:
-                fsa.addEdge(start,open,string[0])
-                if open not in fsa.states:
-                    fsa.states += [open]
-                ThompsonRecurse(open,end,string[1:])
-            return
+                queue = deque()
+                currentChunk = ""
+                open = start
+                penalty = False
+                for letter in string:
+                    parenthasis = queue.pop() if letter in "]})" else False
+                    if not queue:
+                        if letter in "\|/":
+                            fsa.quotient([end,open])
+                            open = start
+                        elif letter == '*':
+                            fsa.addEdge(open, max(fsa.states) + 1, "")
+                            penalty = True
+                        elif letter == '#':
+                            penalty = True
+                        elif letter in "[{(":
+                            queue.append(letter)
+                        elif letter in "]})":
+                            newOpen = max(fsa.states) + 1
+                            fsa.states += [newOpen]
+                            if penalty:
+                                fsa.addEdge(open,newOpen,"",['pen'])
+                                open = newOpen
+                                newOpen += 1
+                                fsa.states += [newOpen]
+                            if parenthasis == '(':
+                                fsa.addEdge(open,newOpen,"")
+                            elif parenthasis == '{':
+                                fsa.addEdge(open,newOpen,"",['pen'])
+                            ThompsonRecurse(open, newOpen, currentChunk)
+                            open = newOpen
+                            penalty = False
+                            currentChunk = ""
+                        else:
+                            newOpen = max(fsa.states) + 1
+                            fsa.states += [newOpen]
+                            fsa.addEdge(open, newOpen, letter, ['pen'] if penalty else [])
+                            open = newOpen
+                            penalty = False
+                    else:
+                        currentChunk += letter
+                        if letter in "[{(":
+                            queue.append(letter)
+                fsa.quotient([end,open])
+
         ThompsonRecurse(0,'f',regex)
         fsa.states += ['f']
         
         fsa = fsa.minimize()
+        fsa.relabelStates()
         
         return fsa
     
@@ -317,6 +309,66 @@ class FSA(FSM):
                 stack.extend([edge.to for edge in partial if edge.to != current])
                 fsa_.edges += partial
         return fsa_.trim()
+    
+    def toRegex(self):
+        copy = FSA(self.start,self.ends,self.states,self.edges)
+        copy.capEnd()
+        #note: check to see why I need to relabel states
+        copy.relabelStates()
+        for state in [state for state in copy.states if state not in [copy.start] + copy.ends]:
+            copy.removeState(state)
+        return "[" + "|".join(edge.label for edge in copy.edges) + "]"
+    
+    #This function ignores self-loops
+    def removeState(self,state):
+        self.states.remove(state)
+        edgesIn = [edge for edge in self.edges if edge.to == state]
+        edgesOut = [edge for edge in self.edges if edge.frm == state]
+        otherEdges = [edge for edge in self.edges if edge not in edgesIn + edgesOut]
+        
+        def createLabel(list):
+            newList = []
+            option = 0
+            
+            for item in list:
+                if item[0] in " ,'":
+                    if item[1] > zeroWeight and option < 2:
+                        option = 1
+                    else:
+                        option = 2                    
+                elif item[1] > zeroWeight:
+                    newList += ["#" + item[0]]
+                else:
+                    newList += [item[0]]
+                    
+            if len(newList) == 0:
+                return ""
+            if option == 1:
+                return "{" + "|".join(newList) + "}"
+            if option == 2:
+                if [True for item in newList if item[0] == '#']:
+                    newList = [item[1:] for item in newList]
+                    return ("*" + newList[0]) if len(newList) == 1 else ("[#" + "|#".join(newList) + "]")
+                else:
+                    return "(" + "|".join(newList) + ")"
+            if len(newList) == 1:
+                return newList[0]
+            return "[" + "|".join(newList) + "]"
+                    
+        temp = {}
+        for edge in edgesIn:
+            if edge.frm not in temp:
+                temp[edge.frm] = []
+            temp[edge.frm] += [(edge.label,edge.weight)]
+        edgesIn = [FSAEdge(frm,state,createLabel(list)) for (frm,list) in temp.items()]
+        temp = {}
+        for edge in edgesOut:
+            if edge.to not in temp:
+                temp[edge.to] = []
+            temp[edge.to] += [(edge.label,edge.weight)]
+        edgesOut = [FSAEdge(state,to,createLabel(list)) for (to,list) in temp.items()]
+        newEdges = [FSAEdge(a.frm,b.to,a.label+b.label,a.weight+b.weight) for a in edgesIn for b in edgesOut]
+        self.edges = otherEdges + newEdges
     
 class FSAEdge:
     def __init__(self,frm,to,label,weight=zeroWeight):

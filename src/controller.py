@@ -62,7 +62,7 @@ def toXML(entry):
         return "<entry>\n" + helperToXML(entry,1) + "</entry>\n"
 
 def makeLanguage(dictionary):
-    if dictionary:
+    try:
         if "underlying inventory" in dictionary:
             underlyingInventory = UnderlyingInventory(dictionary["underlying inventory"]["underlying"], dictionary["underlying inventory"]["borrowings"])
         else:
@@ -91,10 +91,9 @@ def makeLanguage(dictionary):
             orthographies = {name:Orthography(ortho) for (name,ortho) in dictionary["orthographies"].items()}
         else:
             orthographies = False
-    
         return Language(phonology,dictionary["conjugations"],orthographies)
-    else:
-        return Language(False,False)
+    except:
+        raise ValueError()
 
 toForm = {
     "String": toString,

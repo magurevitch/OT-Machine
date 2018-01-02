@@ -8,7 +8,9 @@ description = "Tambajna Optimality Theory"
 bot_prefix = "!"
 
 file = open("static/tambajna_phonology.txt")
-language = controller.makeLanguage(json.loads(file.read()))
+tambajna = controller.makeLanguage(json.loads(file.read()))
+
+languageDict = {}
 
 client = commands.Bot(description=description,command_prefix=bot_prefix)
 
@@ -82,7 +84,7 @@ async def phonology(cxt):
 +-----+-----------+
 ```''')
     await client.say("Marginal phonemes")
-    await client.say("h, r <rr>, j, w")
+    await client.say("`h, r <rr>, j, w`")
     
 inputHelp = '''
 \njust seperate multiple words by spaces
@@ -100,7 +102,7 @@ Here are a few flags you can use
 async def word(cxt,*args):
     flags = " ".join([arg.replace("-","") for arg in args if arg[0] == '-'])
     words = [word for word in args if word[0] != '-']
-    orthography = False if 's' in flags else 'typing'
+    orthography = False if 's' in flags or cxt.message.author.mention in languageDict else 'typing'
     prosody = 'p' not in flags
     form = "String"
     if 'v' in flags:
@@ -108,7 +110,7 @@ async def word(cxt,*args):
     if 'x' in flags:
         form = "XML"
     borrow = 'b' in flags
-    entries = [controller.toForm[form](language.entry(word,orthography,prosody,borrow)) for word in words]
+    entries = [controller.toForm[form](languageDict.get(cxt.message.author.mention,tambajna).entry(word,orthography,prosody,borrow)) for word in words]
     await client.say(cxt.message.author.mention)
     if entries:
         await client.say("\n".join(entries))
@@ -121,7 +123,7 @@ async def word(cxt,*args):
 async def noun(cxt,*args):
     flags = " ".join([arg.replace("-","") for arg in args if arg[0] == '-'])
     words = [word for word in args if word[0] != '-']
-    orthography = False if 's' in flags else 'typing'
+    orthography = False if 's' in flags or cxt.message.author.mention in languageDict else 'typing'
     prosody = 'p' not in flags
     form = "String"
     if 'v' in flags:
@@ -129,9 +131,9 @@ async def noun(cxt,*args):
     if 'x' in flags:
         form = "XML"
     if 'b' in flags:
-        entries = [controller.toForm[form](entry) for word in words for entry in language.bestConjugation('N',word,orthography,prosody)]
+        entries = [controller.toForm[form](entry) for word in words for entry in languageDict.get(cxt.message.author.mention,tambajna).bestConjugation('N',word,orthography,prosody)]
     else:
-        entries = [controller.toForm[form](language.conjugate('N',word,orthography,prosody)) for word in words]
+        entries = [controller.toForm[form](languageDict.get(cxt.message.author.mention,tambajna).conjugate('N',word,orthography,prosody)) for word in words]
     await client.say(cxt.message.author.mention)
     if entries:
         entries = "\n\n".join(entries)
@@ -142,5 +144,79 @@ async def noun(cxt,*args):
             await client.say(entries)
     else:
         await client.say("next time, also write the words you want computed")
+        
+@client.command(pass_context=True,
+                brief="sets your own phonology",
+                help="sets your own phonology\nThe format for what the phonology should look like can be found with !language\nIt is stored person by person, so you aren't resetting for everyone")
+async def set(cxt,*,dictionary: str):
+    try:
+        language = controller.makeLanguage(json.loads(dictionary))
+        languageDict[cxt.message.author.mention] = language
+        await client.say(cxt.message.author.mention)
+        await client.say("your language is now set as your default")
+    except:
+        await client.say("could not set language from given string")
+        
+@client.command(pass_context=True,
+                brief="sets one string of the phonology",
+                help="sets one string of the phonology\ngive a key and the value, and it will try to see if it can change that key")
+async def partial(cxt,string,*,dictionary: str):
+    if cxt.message.author.mention in languageDict:
+        current = languageDict[cxt.message.author.mention].toDictionary()
+    else:
+        current = tambajna.toDictionary()
+    print("before", current["phonotactics"])    
+    
+    isFound = changeKey(string,json.loads(dictionary),current)
+    if not isFound:
+        current[string] = dictionary
+        
+    try:
+        language = controller.makeLanguage(current)
+        print("after", language.toDictionary()["phonotactics"])
+        languageDict[cxt.message.author.mention] = language
+        await client.say(cxt.message.author.mention)
+        await client.say(string + " is now " + dictionary)
+    except:
+        await client.say("could not set language from given string")
+    
+def changeKey(key,value,dictionary):
+    isFound = False
+    for (k,v) in dictionary.items():
+        if k == key:
+            dictionary[k] = value
+            isFound = True
+        elif isinstance(v, dict):
+            isFound = isFound or changeKey(key,value,v)
+        elif isinstance(v, list):
+            for d in v:
+                if isinstance(d, dict):
+                    isFound = isFound or changeKey(key,value,d)
+    return isFound
+        
+@client.command(pass_context=True,
+                brief="resets your phonology to Tambajna",
+                help="resets your phonology to Tambajna")
+async def unset(cxt,*args):
+    if cxt.message.author.mention in languageDict:
+        del languageDict[cxt.message.author.mention]
+        await client.say(cxt.message.author.mention)
+        await client.say("your language is now reset to Tambajna")
+    else:
+        await client.say(cxt.message.author.mention)
+        await client.say("your language is already Tambajna")
+        
+@client.command(pass_context=True,
+                brief="gives the language string for your current language",
+                help="gives the language string for your current language\nIf you haven't set one, the language is Tambajna")
+async def language(cxt):
+    language = languageDict.get(cxt.message.author.mention,tambajna)
+    entries = json.dumps(language.toDictionary())
+    await client.say(cxt.message.author.mention)
+    for i in range(0,len(entries),1800):
+        await client.say(entries[:1800])
+        entries = entries[1800:]
+    if entries:
+        await client.say(entries)
     
 client.run(discord_key)

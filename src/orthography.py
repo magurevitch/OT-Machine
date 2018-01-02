@@ -2,6 +2,7 @@ from src.aho_corasick_node import AhoCorasickNode
 
 class Orthography:
     def __init__(self,map):
+        self.map = map
         self.decodeRoot = AhoCorasickNode()
         self.encodeRoot = AhoCorasickNode()
         for (input,output) in map.items():
