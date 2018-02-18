@@ -47,7 +47,6 @@ class TestOrthographyMethods(unittest.TestCase):
             "anoa":"anoa"
             }
         for (input,output) in map.items():
-            #print(input + " decoding to " + output + ", getting " + self.orthography.decode(input))
             self.assertEqual(output, self.orthography.decode(input), input + " not decoding to " + output)
             
     def test_encode(self):
@@ -76,5 +75,4 @@ class TestOrthographyMethods(unittest.TestCase):
             "anoa":"anoa"
             }
         for (input,output) in map.items():
-            #print(output + " encoding to " + input + ", getting " + self.orthography.encode(output))
             self.assertEqual(input, self.orthography.encode(output), output + " not encoding to " + input)

@@ -164,8 +164,7 @@ async def partial(cxt,string,*,dictionary: str):
     if cxt.message.author.mention in languageDict:
         current = languageDict[cxt.message.author.mention].toDictionary()
     else:
-        current = tambajna.toDictionary()
-    print("before", current["phonotactics"])    
+        current = tambajna.toDictionary() 
     
     isFound = changeKey(string,json.loads(dictionary),current)
     if not isFound:
@@ -173,7 +172,6 @@ async def partial(cxt,string,*,dictionary: str):
         
     try:
         language = controller.makeLanguage(current)
-        print("after", language.toDictionary()["phonotactics"])
         languageDict[cxt.message.author.mention] = language
         await client.say(cxt.message.author.mention)
         await client.say(string + " is now " + dictionary)
