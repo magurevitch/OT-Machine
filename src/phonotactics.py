@@ -21,12 +21,10 @@ class Phonotactics:
         self.canDelete = canDelete
     
     def syllableFSA(self):
-        fsa = FSA("I",[],["I"],[])
         if "n" in self.side.lower() or self.placement in [False,0]:
-            fsa.addEdge("I","I",".")
-            fsa.ends = ["I"]
-            return fsa
-        fsa.states += ["P"]
+            return FSA("I",["I"],["I"],[FSAEdge("I","I",".")])
+
+        fsa = FSA("I",[],["P","EP"] if self.placement > 1 else ["P"],[])
         if self.foot > 0:
             fsa.states += ["S"]
             fsa.addString('P','S',(self.foot+1)*".",[])
@@ -36,8 +34,18 @@ class Phonotactics:
             fsa.ends += ["."]
             fsa.addEdge("P",".",".")
             fsa.addEdge(".",".",".")
+
+        if self.bephon:
+            for state in fsa.states:
+                fsa.addEdge(state,"B",".",[])
+            fsa.states += ["B"]
+            fsa.ends += ["B","P","EP"]
+        else:
+            fsa.ends = [state for state in fsa.states]
+        fsa.states += ["I"]
+
         fsa.addString('I','P',self.placement*".",[])
-        
+
         deletions = []
         if self.canDelete:
             deletions += [FSAEdge(e2.frm,"P",".",["pen"]) for e2 in fsa.edges for e1 in fsa.edges if e2.to == e1.frm and e1.to == "P"]
@@ -50,20 +58,12 @@ class Phonotactics:
                 fsa.addString("I","P","..",["pen"])
                 fsa.addEdge("I..1","I..1",".",["pen"])
         fsa.edges += deletions
-        
+
         if self.placement > 1:
             for state in fsa.states:
                 if "I" in state and state != "I" + self.placement*"." + str(self.placement - 1):
                     fsa.addEdge(state,"EP",".",[])
             fsa.states += ["EP"]
-        if self.bephon:
-            for state in fsa.states:
-                if state != "EP":
-                    fsa.addEdge(state,"B",".",[])
-            fsa.states += ["B"]
-            fsa.ends += ["B","P","EP"]
-        else:
-            fsa.ends = [state for state in fsa.states if "I" not in state]
         for edge in fsa.edges:
             if edge.frm == "I":
                 edge.label = ""

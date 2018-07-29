@@ -90,13 +90,9 @@ class ExpandingListFrame(Frame):
 class ListFrame(Frame):
     def __init__(self,master,name,cls):
         Frame.__init__(self,master)
-        
         self.name = name
-        
         self.expand = ExpansionFrame(self,cls = cls)
-        
         self.column = []
-        
         Label(self,text=name).pack()
         
         self.expand.pack()
@@ -166,6 +162,8 @@ class AssimilationFrame(Frame):
             self.list.grid_forget()
             
     def insert(self,dictionary):
+        self.dissimilation.set(dictionary["dissimilation"])
+                
         if dictionary["tier"] == False:
             self.hasList.set(0)
         else:
@@ -174,7 +172,8 @@ class AssimilationFrame(Frame):
             
         for group in dictionary["lists"]:
             self.expand.addEntry()
-            insertToEntry(self.column[-1]," ".join(group))
+            text = " ".join(group) if isinstance(group, list) else group
+            insertToEntry(self.column[-1], text)
                     
 class ConjugationFrame(ExpandingListFrame):
     def __init__(self,master):

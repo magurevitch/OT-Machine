@@ -26,6 +26,7 @@ class TestPhonotacticMethods(unittest.TestCase):
         phonotactics = Phonotactics("l",3,2,False,False,False,False,False,False)
         
         actualFSA = phonotactics.syllableFSA()
+        
         self.assertTrue(actualFSA.equivalent(expectedFSA), "left side phonotactics not working")
         
     def test_syllable_FSA_bad_edge_left(self):
@@ -98,7 +99,6 @@ class TestPhonotacticMethods(unittest.TestCase):
             [
                 FSAEdge("I","B",""),
                 FSAEdge("I","P",""),
-                FSAEdge("B","F",""),
                 FSAEdge("P","F",""),
                 FSAEdge("B","P","."),
                 FSAEdge("B","S","."),
@@ -115,6 +115,7 @@ class TestPhonotacticMethods(unittest.TestCase):
         phonotactics = Phonotactics("r",1,3,False,False,False,True,False,False)
         
         actualFSA = phonotactics.syllableFSA()
+        
         self.assertTrue(actualFSA.equivalent(expectedFSA), "right side bad edge phonotactics not working")
         
     def test_syllable_FSA_no_secondary_stress(self):

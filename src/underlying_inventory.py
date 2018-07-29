@@ -14,8 +14,10 @@ class UnderlyingInventory:
         return fst
     
     def borrow(self,word):
-        fst = self.borrowingFST()
         fsa = FSA.fromString(word)
+        if not self.underlying:
+            return fsa
+        fst = self.borrowingFST()
         
         borrowingFSA = fst.product(fsa)
         

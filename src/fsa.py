@@ -94,24 +94,33 @@ class FSA(FSM):
         queue.update(self.start,zeroWeight,[""])
 
         stateFrom = self.stateFrom()
+        
+        winning_weight = False
+        winning_paths = []
 
-        while queue:
+        while queue.list:
             current = queue.pop()
             if current.weight == infiniteWeight:
-                return (False,False)
+                break
             if current.label in self.ends:
-                return (current.weight,current.paths)
+                if not(winning_weight) or current.weight == winning_weight:
+                    winning_weight = current.weight
+                    winning_paths += current.paths
             for edge in stateFrom[current.label]:
                 if edge.to in queue:
                     newWeight = current.weight + edge.weight
                     queueWeight = queue.getWeight(edge.to)
-                    if newWeight < queueWeight:
+                    if not(winning_weight) or newWeight < winning_weight:
+                        if newWeight < queueWeight:
+                            paths = [path + edge.label for path in current.paths]
+                            queue.update(edge.to,newWeight,paths)
+                        elif newWeight == queueWeight:
+                            paths = [path + edge.label for path in current.paths]
+                            queue.addToPaths(edge.to,paths)
+                    if winning_weight and newWeight <= winning_weight and edge.to in self.ends:
                         paths = [path + edge.label for path in current.paths]
-                        queue.update(edge.to,newWeight,paths)
-                    elif newWeight == queueWeight:
-                        paths = [path + edge.label for path in current.paths]
-                        queue.addToPaths(edge.to,paths)
-        return False
+                        winning_paths += paths
+        return (winning_weight, winning_paths)
     
     def determinize(self):
         state_transitions = {}
@@ -279,6 +288,7 @@ class FSA(FSM):
         fsa.states += ['f']
         
         fsa = fsa.minimize()
+        
         fsa.relabelStates()
         
         return fsa
