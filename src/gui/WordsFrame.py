@@ -64,14 +64,17 @@ class WordsFrame(Frame):
             self.leverLabel["image"] = self.leverFrames[self.downLevel]
             self.master.after(10,self.leverUp)
 
-    def updateConjugationsAndOrthographies(self):
-        self.conjugationMenu['menu'].delete(1,'end')
-        for conjugation in self.language.conjugations:
-            self.conjugationMenu['menu'].add_command(label=conjugation, command=lambda: self.selectedConjugation.set(conjugation))
-            
-        self.orthographyMenu['menu'].delete(1,'end')
-        for orthography in self.language.orthographies:
-            self.orthographyMenu['menu'].add_command(label=orthography, command=lambda: self.selectedOrthography.set(orthography))
+    def update(self,language):
+        self.language = language
+        self.updateOptionMenu(self.conjugationMenu, self.selectedConjugation, language.conjugations)
+        self.updateOptionMenu(self.orthographyMenu, self.selectedOrthography, language.orthographies)
+           
+    def updateOptionMenu(self, menu, selected, new_values):
+        menu['menu'].delete(0,'end')
+        selected.set(" ")
+        menu['menu'].add_command(label=" ", command=lambda: selected.set(" "))
+        for value in new_values:
+            menu['menu'].add_command(label=value, command=lambda: selected.set(value))
             
     def leftFrame(self):
         frame = Frame(self)

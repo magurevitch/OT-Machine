@@ -30,8 +30,7 @@ class Application:
             self.wordsFrame.grid(row = 1)
             self.toWordsButton.grid_forget()
             self.toLanguageButton.grid(row = 0)
-            self.wordsFrame.language = self.languageFrame.makeLanguage()
-            self.wordsFrame.updateConjugationsAndOrthographies()
+            self.wordsFrame.update(self.languageFrame.makeLanguage())
 
     def makeToggleFrame(self,master):
         frame = Frame(master)

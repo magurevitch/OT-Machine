@@ -16,9 +16,9 @@ class LanguageFrame(Frame):
         self.tambajna.bind("<Button-1>",self.insertTambajna)
         self.tambajna.grid(row = 0,column=0)
         
-        self.getLanguage = Button(self.buttonFrame,text = "Get the language from the entries")
-        self.getLanguage.bind("<Button-1>",self.getLangauge)
-        self.getLanguage.grid(row = 0, column = 1)
+        self.getLanguageButton = Button(self.buttonFrame,text = "Get the language from the entries")
+        self.getLanguageButton.bind("<Button-1>",self.getLanguage)
+        self.getLanguageButton.grid(row = 0, column = 1)
         
         self.clearButton = Button(self.buttonFrame,text = "Clear")
         self.clearButton.bind("<Button-1>",self.clear)
@@ -137,7 +137,7 @@ class LanguageFrame(Frame):
                 }
             }
         
-    def getLangauge(self,event):
+    def getLanguage(self,event):
         self.openLanguage(event)
         language = json.dumps(self.get())
         insertToEntry(self.languageText.textbox, '1.0', language)
@@ -147,7 +147,7 @@ class LanguageFrame(Frame):
         insertToEntry(self.geminates, 0, " ".join(dictionary["geminates"]))
         insertToEntry(self.undeletables, 0, " ".join(dictionary["undeletables"]) if dictionary["undeletables"] else "")
         insertToEntry(self.badstrings, 0, " ".join(dictionary["bad strings"]) if dictionary["bad strings"] else "")
-        insertToEntry(self.underlyingPhonemes, '1.0', " ".join(dictionary["underlying inventory"]["underlying"]) if dictionary["underlying inventory"] else "")
+        insertToEntry(self.underlyingPhonemes, '1.0', " ".join(dictionary["underlying inventory"]["underlying"]) if dictionary["underlying inventory"] and dictionary["underlying inventory"]["underlying"] else "")
         self.tambajnaFinish.set(dictionary["tambajna finish"])
         self.orderFrame.order.delete(0, 6)
         for num, item in enumerate(dictionary["order"]):

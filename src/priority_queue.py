@@ -30,6 +30,8 @@ class PriorityQueue:
         if len(self.list) > 2:
             self.list[1] = self.list.pop()
             self.percolateDown(1)
+        else:
+            self.list = []
         return returner
         
     def update(self,label,weight,paths):

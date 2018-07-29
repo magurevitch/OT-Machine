@@ -44,11 +44,15 @@ class Phonology:
                     delete.edges += traces
                     if not(traces):
                         delete.addEdge(0,0,sym,"",["del"])
+        else:
+            for sym in list(self.getSymbols()):
+                delete.addEdge(0,0,sym,"",["del"])
                         
         changes = FST.selfLooping(list(self.getSymbols()) + [""] + self.getTraces())
-        for original in self.changes:
-            for changed in self.changes[original]:
-                changes.addString(0,0,original,changed,["chg"])
+        for originals, changeds in self.changes.items():
+            for original in originals.split():
+                for changed in changeds:
+                    changes.addString(0,0,original,changed,["chg"])
         for state in changes.states:
             changes.addEdge(state,state,'','')
                     
@@ -109,6 +113,8 @@ class Phonology:
             fsa.addEdge(state,state,"'")
             fsa.addEdge(state,state,",")
         for edge in fsa.edges:
+            if edge.to != "S" and edge.label == edge.to[int(edge.to[-1]) + 1]:
+                continue
             if edge.label == string[0]:
                 edge.to = "S" + string + "1"
             if edge.weight == Weight(["bs"]) and overlap(string,string):
@@ -126,7 +132,6 @@ class Phonology:
         for state in fsa.states:
             for trace in self.getTraces():
                 fsa.addEdge(state,state,trace)
-        fsa.relabelStates()
         return fsa
     
     # This generates the list of all surface forms that fit phonotactics, as a list of syllables, and list of penalties
